@@ -71,3 +71,30 @@ Response Body (Failed):
 }
 ```
 
+## Logout User
+Endpoint: POST /api/v1/auth/logout
+Authentication: Required
+
+Request Body: None
+
+Response Body (Success):
+```json
+{
+  "status": "success",
+  "data": {
+    "message": "Logout successful"
+  }
+}
+```
+
+Response Body (Failed):
+```json
+{
+  "errors": [
+    {
+      "message": "Failed to logout"
+    }
+  ]
+}
+```
+

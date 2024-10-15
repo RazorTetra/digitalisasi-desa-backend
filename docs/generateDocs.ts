@@ -1,3 +1,5 @@
+// src/docs/generateUserApiDocs.ts
+
 import { z } from 'zod';
 import fs from 'fs';
 import path from 'path';
@@ -88,6 +90,29 @@ function generateUserApiDocs() {
     errors: [
       {
         message: "Internal Server Error"
+      }
+    ]
+  }), null, 2);
+  markdown += '\n```\n\n';
+
+  // Logout User
+  markdown += '## Logout User\n';
+  markdown += 'Endpoint: POST /api/v1/auth/logout\n';
+  markdown += 'Authentication: Required\n\n';
+  markdown += 'Request Body: None\n\n';
+  markdown += 'Response Body (Success):\n```json\n';
+  markdown += JSON.stringify(SuccessResponse.parse({
+    status: "success",
+    data: {
+      message: "Logout successful"
+    }
+  }), null, 2);
+  markdown += '\n```\n\n';
+  markdown += 'Response Body (Failed):\n```json\n';
+  markdown += JSON.stringify(ErrorResponse.parse({
+    errors: [
+      {
+        message: "Failed to logout"
       }
     ]
   }), null, 2);
