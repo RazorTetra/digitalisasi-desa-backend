@@ -18,7 +18,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction):
   const accessToken = req.cookies.accessToken;
 
   if (!accessToken) {
-    res.status(401).json({ error: 'Access token not found' });
+    res.status(401).json({ error: 'Access token not found', shouldRefresh: true });
     return;
   }
 

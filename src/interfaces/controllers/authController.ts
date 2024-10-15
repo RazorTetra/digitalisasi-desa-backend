@@ -3,11 +3,13 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthUseCase } from '../../application/use-cases/auth/AuthUseCase';
 import { UserRepository } from '../../infrastructure/repositories/UserRepository';
+import { RefreshTokenRepository } from '../../infrastructure/repositories/RefreshTokenRepository';
 import { AuthenticationError } from '../../common/error/AuthenticationError';
 import { z } from 'zod';
 
 const userRepository = new UserRepository();
-const authUseCase = new AuthUseCase(userRepository);
+const refreshTokenRepository = new RefreshTokenRepository();
+const authUseCase = new AuthUseCase(userRepository, refreshTokenRepository);
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -22,7 +24,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     // Set the access token in an HTTP-only cookie
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       maxAge: 15 * 60 * 1000, // 15 minutes
     });
@@ -48,48 +50,58 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 };
 
 export const refresh = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const refreshToken = req.cookies.refreshToken;
-    if (!refreshToken) {
-      throw new AuthenticationError('Refresh token not found');
+    try {
+      const refreshToken = req.cookies.refreshToken;
+      if (!refreshToken) {
+        throw new AuthenticationError('Refresh token not found in cookies');
+      }
+  
+      const { accessToken, refreshToken: newRefreshToken } = await authUseCase.refreshToken(refreshToken);
+  
+      res.cookie('accessToken', accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 15 * 60 * 1000, // 15 minutes
+      });
+  
+      res.cookie('refreshToken', newRefreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+  
+      res.status(200).json({ message: 'Tokens refreshed successfully' });
+    } catch (error) {
+      console.error('Error in refresh:', error);
+      if (error instanceof AuthenticationError) {
+        res.status(401).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: 'An unexpected error occurred during token refresh' });
+      }
     }
-
-    const newAccessToken = await authUseCase.refreshToken(refreshToken);
-
-    res.cookie('accessToken', newAccessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 15 * 60 * 1000, // 15 minutes
-    });
-
-    res.status(200).json({ message: 'Access token refreshed' });
-  } catch (error) {
-    if (error instanceof AuthenticationError) {
-      res.status(401).json({ error: error.message });
-    } else {
-      next(error);
-    }
-  }
-};
+  };
 
 export const logout = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Clear the access token cookie
+    const refreshToken = req.cookies.refreshToken;
+    if (refreshToken) {
+      await authUseCase.logout(refreshToken);
+    }
+
     res.clearCookie('accessToken', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
     });
 
-    // Clear the refresh token cookie
     res.clearCookie('refreshToken', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
     });
 
-    // Clear the session if you're using express-session
     if (req.session) {
       req.session.destroy((err) => {
         if (err) {
