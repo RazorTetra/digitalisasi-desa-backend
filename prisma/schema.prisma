@@ -5,7 +5,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -13,25 +13,13 @@ model User {
   id            String    @id @default(uuid())
   namaDepan     String
   namaBelakang  String
-  kelas         String?
   nomorHp       String
   email         String    @unique
   password      String
-  role          Role      @default(SISWA)
-  refreshTokens RefreshToken[]
-}
-
-model RefreshToken {
-  id        String   @id @default(uuid())
-  token     String   @unique @db.VarChar(500) // Menggunakan VARCHAR(500) untuk menyimpan token yang panjang
-  expiresAt DateTime
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  role          Role      @default(USER)
 }
 
 enum Role {
   ADMIN
-  SISWA
+  USER
 }

@@ -12,11 +12,9 @@ export type JwtSignPayload = {
 export class Jwt {
   constructor(
     private readonly accessTokenKey: string = process.env.ACCESS_TOKEN_KEY as string,
-    private readonly refreshTokenKey: string = process.env.REFRESH_TOKEN_KEY as string,
-    private readonly accessTokenAge: string = process.env.ACCESS_TOKEN_AGE as string,
-    private readonly refreshTokenAge: string = process.env.REFRESH_TOKEN_AGE as string
+    private readonly accessTokenAge: string = process.env.ACCESS_TOKEN_AGE || '1d'
   ) {}
-
+  
   async createAccessToken(payload: JwtSignPayload): Promise<string> {
     return jwt.sign(
       this.mapJwtSignPayload(payload),
@@ -27,18 +25,6 @@ export class Jwt {
 
   async verifyAccessToken(token: string): Promise<jwt.JwtPayload> {
     return jwt.verify(token, this.accessTokenKey) as jwt.JwtPayload;
-  }
-
-  async createRefreshToken(payload: JwtSignPayload): Promise<string> {
-    return jwt.sign(
-      this.mapJwtSignPayload(payload),
-      this.refreshTokenKey,
-      { expiresIn: this.refreshTokenAge }
-    );
-  }
-
-  async verifyRefreshToken(token: string): Promise<jwt.JwtPayload> {
-    return jwt.verify(token, this.refreshTokenKey) as jwt.JwtPayload;
   }
 
   async decode(token: string): Promise<jwt.JwtPayload | null> {

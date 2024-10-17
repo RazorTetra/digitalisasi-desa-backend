@@ -9,13 +9,19 @@ const UserSchema = z.object({
   id: z.string().uuid(),
   namaDepan: z.string(),
   namaBelakang: z.string(),
-  kelas: z.string().optional(),
   nomorHp: z.string(),
   email: z.string().email(),
-  role: z.enum(['ADMIN', 'SISWA']),
+  role: z.enum(['ADMIN', 'USER']),
 });
 
 const UserInputSchema = UserSchema.omit({ id: true }).extend({
+  password: z.string().min(8),
+});
+
+const UserUpdateSchema = UserInputSchema.partial();
+
+const LoginInputSchema = z.object({
+  email: z.string().email(),
   password: z.string().min(8),
 });
 
@@ -25,9 +31,10 @@ const SuccessResponse = z.object({
 });
 
 const ErrorResponse = z.object({
-  errors: z.array(z.object({
+  error: z.string(),
+  details: z.array(z.object({
     message: z.string(),
-  })),
+  })).optional(),
 });
 
 // Function to generate Markdown documentation
@@ -42,26 +49,28 @@ function generateUserApiDocs() {
   markdown += JSON.stringify(UserInputSchema.parse({
     namaDepan: "John",
     namaBelakang: "Doe",
-    kelas: "12A",
     nomorHp: "081234567890",
     email: "john.doe@example.com",
     password: "securepassword",
-    role: "SISWA"
+    role: "USER"
   }), null, 2);
   markdown += '\n```\n\n';
-  markdown += 'Response Body (Success):\n```json\n';
-  markdown += JSON.stringify(SuccessResponse.parse({
-    status: "success",
-    data: {
-      id: "e6314752-c753-47dc-bc82-eae480d1b094"
-    }
+  markdown += 'Response Body (Success - 201 Created):\n```json\n';
+  markdown += JSON.stringify(UserSchema.parse({
+    id: "e6314752-c753-47dc-bc82-eae480d1b094",
+    namaDepan: "John",
+    namaBelakang: "Doe",
+    nomorHp: "081234567890",
+    email: "john.doe@example.com",
+    role: "USER"
   }), null, 2);
   markdown += '\n```\n\n';
-  markdown += 'Response Body (Failed):\n```json\n';
+  markdown += 'Response Body (Failed - 400 Bad Request):\n```json\n';
   markdown += JSON.stringify(ErrorResponse.parse({
-    errors: [
+    error: "Invalid input",
+    details: [
       {
-        message: "Internal Server Error"
+        message: "Invalid email format"
       }
     ]
   }), null, 2);
@@ -71,36 +80,105 @@ function generateUserApiDocs() {
   markdown += '## Get All Users\n';
   markdown += 'Endpoint: GET /api/v1/users\n';
   markdown += 'Authentication: Required\n\n';
-  markdown += 'Response Body (Success):\n```json\n';
+  markdown += 'Response Body (Success - 200 OK):\n```json\n';
+  markdown += JSON.stringify([UserSchema.parse({
+    id: "e6314752-c753-47dc-bc82-eae480d1b094",
+    namaDepan: "John",
+    namaBelakang: "Doe",
+    nomorHp: "081234567890",
+    email: "john.doe@example.com",
+    role: "USER"
+  })], null, 2);
+  markdown += '\n```\n\n';
+
+  // Get User by ID
+  markdown += '## Get User by ID\n';
+  markdown += 'Endpoint: GET /api/v1/users/:id\n';
+  markdown += 'Authentication: Required\n\n';
+  markdown += 'Response Body (Success - 200 OK):\n```json\n';
+  markdown += JSON.stringify(UserSchema.parse({
+    id: "e6314752-c753-47dc-bc82-eae480d1b094",
+    namaDepan: "John",
+    namaBelakang: "Doe",
+    nomorHp: "081234567890",
+    email: "john.doe@example.com",
+    role: "USER"
+  }), null, 2);
+  markdown += '\n```\n\n';
+  markdown += 'Response Body (Failed - 404 Not Found):\n```json\n';
+  markdown += JSON.stringify(ErrorResponse.parse({
+    error: "User not found"
+  }), null, 2);
+  markdown += '\n```\n\n';
+
+  // Update User
+  markdown += '## Update User\n';
+  markdown += 'Endpoint: PUT /api/v1/users/:id\n';
+  markdown += 'Authentication: Required\n\n';
+  markdown += 'Request Body:\n```json\n';
+  markdown += JSON.stringify(UserUpdateSchema.parse({
+    namaDepan: "Jane",
+    nomorHp: "087654321098"
+  }), null, 2);
+  markdown += '\n```\n\n';
+  markdown += 'Response Body (Success - 200 OK):\n```json\n';
+  markdown += JSON.stringify(UserSchema.parse({
+    id: "e6314752-c753-47dc-bc82-eae480d1b094",
+    namaDepan: "Jane",
+    namaBelakang: "Doe",
+    nomorHp: "087654321098",
+    email: "john.doe@example.com",
+    role: "USER"
+  }), null, 2);
+  markdown += '\n```\n\n';
+  markdown += 'Response Body (Failed - 404 Not Found):\n```json\n';
+  markdown += JSON.stringify(ErrorResponse.parse({
+    error: "User not found"
+  }), null, 2);
+  markdown += '\n```\n\n';
+
+  // Delete User
+  markdown += '## Delete User\n';
+  markdown += 'Endpoint: DELETE /api/v1/users/:id\n';
+  markdown += 'Authentication: Required\n\n';
+  markdown += 'Response (Success - 204 No Content): No body\n\n';
+  markdown += 'Response Body (Failed - 404 Not Found):\n```json\n';
+  markdown += JSON.stringify(ErrorResponse.parse({
+    error: "User not found"
+  }), null, 2);
+  markdown += '\n```\n\n';
+
+  // Login User
+  markdown += '## Login User\n';
+  markdown += 'Endpoint: POST /api/v1/auth/login\n';
+  markdown += 'Authentication: Not Required\n\n';
+  markdown += 'Request Body:\n```json\n';
+  markdown += JSON.stringify(LoginInputSchema.parse({
+    email: "john.doe@example.com",
+    password: "securepassword"
+  }), null, 2);
+  markdown += '\n```\n\n';
+  markdown += 'Response Body (Success - 200 OK):\n```json\n';
   markdown += JSON.stringify(SuccessResponse.parse({
     status: "success",
-    data: [UserSchema.parse({
-      id: "e6314752-c753-47dc-bc82-eae480d1b094",
-      namaDepan: "John",
-      namaBelakang: "Doe",
-      kelas: "12A",
-      nomorHp: "081234567890",
-      email: "john.doe@example.com",
-      role: "SISWA"
-    })]
+    data: {
+      message: "Login successful"
+    }
   }), null, 2);
   markdown += '\n```\n\n';
-  markdown += 'Response Body (Failed):\n```json\n';
+  markdown += 'Response Body (Failed - 401 Unauthorized):\n```json\n';
   markdown += JSON.stringify(ErrorResponse.parse({
-    errors: [
-      {
-        message: "Internal Server Error"
-      }
-    ]
+    error: "Invalid email or password"
   }), null, 2);
   markdown += '\n```\n\n';
+  markdown += 'Note: On successful login, an HTTP-only cookie named "accessToken" will be set with a 1-day expiration.\n\n';
 
   // Logout User
   markdown += '## Logout User\n';
   markdown += 'Endpoint: POST /api/v1/auth/logout\n';
   markdown += 'Authentication: Required\n\n';
   markdown += 'Request Body: None\n\n';
-  markdown += 'Response Body (Success):\n```json\n';
+  markdown += 'Response Body (Success - 200 OK):\n```json\n';
   markdown += JSON.stringify(SuccessResponse.parse({
     status: "success",
     data: {
@@ -108,17 +186,7 @@ function generateUserApiDocs() {
     }
   }), null, 2);
   markdown += '\n```\n\n';
-  markdown += 'Response Body (Failed):\n```json\n';
-  markdown += JSON.stringify(ErrorResponse.parse({
-    errors: [
-      {
-        message: "Failed to logout"
-      }
-    ]
-  }), null, 2);
-  markdown += '\n```\n\n';
-
-  // Add more endpoints as needed...
+  markdown += 'Note: On successful logout, the "accessToken" cookie will be cleared.\n\n';
 
   // Write to file
   const outputPath = path.join(__dirname, 'user-api-spec.md');
