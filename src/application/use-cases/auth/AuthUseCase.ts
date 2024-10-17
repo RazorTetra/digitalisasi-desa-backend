@@ -4,14 +4,13 @@ import { UserRepository } from "../../../infrastructure/repositories/UserReposit
 import { Jwt, JwtSignPayload } from "../../../infrastructure/security/Jwt";
 import { AuthenticationError } from "../../../common/error/AuthenticationError";
 import { Bcrypt } from "../../../infrastructure/security/Bcrypt";
+import { User, Prisma, Role } from "@prisma/client";
 
 export class AuthUseCase {
   private bcrypt: Bcrypt;
   private jwt: Jwt;
 
-  constructor(
-    private userRepository: UserRepository
-  ) {
+  constructor(private userRepository: UserRepository) {
     this.bcrypt = new Bcrypt();
     this.jwt = new Jwt();
   }
@@ -37,6 +36,39 @@ export class AuthUseCase {
     const accessToken = await this.jwt.createAccessToken(payload);
 
     return { accessToken };
+  }
+
+  async register(userData: Prisma.UserCreateInput): Promise<User> {
+    const existingUser = await this.userRepository.findByEmail(userData.email);
+    if (existingUser) {
+      throw new AuthenticationError("Email sudah terdaftar");
+    }
+
+    const hashedPassword = await this.bcrypt.hash(userData.password);
+    const newUser = await this.userRepository.create({
+      ...userData,
+      password: hashedPassword,
+    });
+
+    return newUser;
+  }
+
+  async registerAdmin(
+    userData: Omit<Prisma.UserCreateInput, "role">
+  ): Promise<User> {
+    const existingUser = await this.userRepository.findByEmail(userData.email);
+    if (existingUser) {
+      throw new AuthenticationError("Email sudah terdaftar");
+    }
+
+    const hashedPassword = await this.bcrypt.hash(userData.password);
+    const newAdmin = await this.userRepository.create({
+      ...userData,
+      password: hashedPassword,
+      role: Role.ADMIN,
+    });
+
+    return newAdmin;
   }
 
   async logout(): Promise<void> {

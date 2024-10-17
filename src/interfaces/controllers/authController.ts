@@ -14,6 +14,22 @@ const loginSchema = z.object({
   password: z.string().min(8),
 });
 
+const registerSchema = z.object({
+  namaDepan: z.string().min(1),
+  namaBelakang: z.string().min(1),
+  nomorHp: z.string().min(10),
+  email: z.string().email(),
+  password: z.string().min(8),
+});
+
+const registerAdminSchema = z.object({
+  namaDepan: z.string().min(1),
+  namaBelakang: z.string().min(1),
+  nomorHp: z.string().min(10),
+  email: z.string().email(),
+  password: z.string().min(12), // Consider stronger password requirements for admins
+});
+
 export const login = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password } = loginSchema.parse(req.body);
@@ -33,6 +49,42 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
       res.status(400).json({ error: 'Invalid input', details: error.errors });
     } else if (error instanceof AuthenticationError) {
       res.status(401).json({ error: error.message });
+    } else {
+      next(error);
+    }
+  }
+};
+
+export const register = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userData = registerSchema.parse(req.body);
+    const newUser = await authUseCase.register(userData);
+    res.status(201).json({ message: 'Registration successful', userId: newUser.id });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ error: 'Invalid input', details: error.errors });
+    } else if (error instanceof AuthenticationError) {
+      res.status(409).json({ error: error.message });
+    } else {
+      next(error);
+    }
+  }
+};
+
+export const registerAdmin = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const adminData = registerAdminSchema.parse(req.body);
+    const newAdmin = await authUseCase.registerAdmin(adminData);
+    res.status(201).json({ 
+      message: 'Admin registration successful', 
+      userId: newAdmin.id,
+      role: newAdmin.role
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ error: 'Invalid input', details: error.errors });
+    } else if (error instanceof AuthenticationError) {
+      res.status(409).json({ error: error.message });
     } else {
       next(error);
     }
