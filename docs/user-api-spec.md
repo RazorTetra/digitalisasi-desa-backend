@@ -40,6 +40,53 @@ Response Body (Failed - 400 Bad Request):
 }
 ```
 
+## Register Admin
+Endpoint: POST /api/v1/auth/register-admin
+Authentication: Required (Admin only)
+
+Request Body:
+```json
+{
+  "namaDepan": "Admin",
+  "namaBelakang": "User",
+  "nomorHp": "081234567890",
+  "email": "admin@example.com",
+  "role": "ADMIN",
+  "password": "secureAdminPassword123"
+}
+```
+
+Response Body (Success - 201 Created):
+```json
+{
+  "status": "success",
+  "data": {
+    "message": "Admin registration successful",
+    "userId": "f7314752-c753-47dc-bc82-eae480d1b095",
+    "role": "ADMIN"
+  }
+}
+```
+
+Response Body (Failed - 400 Bad Request):
+```json
+{
+  "error": "Invalid input",
+  "details": [
+    {
+      "message": "Password must be at least 12 characters long"
+    }
+  ]
+}
+```
+
+Response Body (Failed - 403 Forbidden):
+```json
+{
+  "error": "Access denied. Admin privileges required."
+}
+```
+
 ## Get All Users
 Endpoint: GET /api/v1/users
 Authentication: Required

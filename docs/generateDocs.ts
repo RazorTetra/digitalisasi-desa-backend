@@ -18,6 +18,10 @@ const UserInputSchema = UserSchema.omit({ id: true }).extend({
   password: z.string().min(8),
 });
 
+const AdminInputSchema = UserInputSchema.extend({
+  password: z.string().min(12), // Stronger password for admins
+});
+
 const UserUpdateSchema = UserInputSchema.partial();
 
 const LoginInputSchema = z.object({
@@ -73,6 +77,46 @@ function generateUserApiDocs() {
         message: "Invalid email format"
       }
     ]
+  }), null, 2);
+  markdown += '\n```\n\n';
+
+  // Add Register Admin
+  markdown += '## Register Admin\n';
+  markdown += 'Endpoint: POST /api/v1/auth/register-admin\n';
+  markdown += 'Authentication: Required (Admin only)\n\n';
+  markdown += 'Request Body:\n```json\n';
+  markdown += JSON.stringify(AdminInputSchema.parse({
+    namaDepan: "Admin",
+    namaBelakang: "User",
+    nomorHp: "081234567890",
+    email: "admin@example.com",
+    password: "secureAdminPassword123",
+    role: "ADMIN"
+  }), null, 2);
+  markdown += '\n```\n\n';
+  markdown += 'Response Body (Success - 201 Created):\n```json\n';
+  markdown += JSON.stringify(SuccessResponse.parse({
+    status: "success",
+    data: {
+      message: "Admin registration successful",
+      userId: "f7314752-c753-47dc-bc82-eae480d1b095",
+      role: "ADMIN"
+    }
+  }), null, 2);
+  markdown += '\n```\n\n';
+  markdown += 'Response Body (Failed - 400 Bad Request):\n```json\n';
+  markdown += JSON.stringify(ErrorResponse.parse({
+    error: "Invalid input",
+    details: [
+      {
+        message: "Password must be at least 12 characters long"
+      }
+    ]
+  }), null, 2);
+  markdown += '\n```\n\n';
+  markdown += 'Response Body (Failed - 403 Forbidden):\n```json\n';
+  markdown += JSON.stringify(ErrorResponse.parse({
+    error: "Access denied. Admin privileges required."
   }), null, 2);
   markdown += '\n```\n\n';
 
