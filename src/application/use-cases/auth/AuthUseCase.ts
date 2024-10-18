@@ -74,4 +74,14 @@ export class AuthUseCase {
   async logout(): Promise<void> {
     // No need to do anything here since we're not storing tokens
   }
+
+  async getCurrentUser(userId: string): Promise<Omit<User, 'password'> | null> {
+    const user = await this.userRepository.findById(userId);
+    if (user) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    }
+    return null;
+  }
 }

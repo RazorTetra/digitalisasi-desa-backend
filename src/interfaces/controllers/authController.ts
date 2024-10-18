@@ -5,6 +5,7 @@ import { AuthUseCase } from '../../application/use-cases/auth/AuthUseCase';
 import { UserRepository } from '../../infrastructure/repositories/UserRepository';
 import { AuthenticationError } from '../../common/error/AuthenticationError';
 import { z } from 'zod';
+import ms from 'ms';
 
 const userRepository = new UserRepository();
 const authUseCase = new AuthUseCase(userRepository);
@@ -35,12 +36,15 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     const { email, password } = loginSchema.parse(req.body);
     const { accessToken } = await authUseCase.login(email, password);
     
+    const accessTokenAge = process.env.ACCESS_TOKEN_AGE || '1d';
+    const maxAge = ms(accessTokenAge);
+
     // Set the access token in an HTTP-only cookie
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      maxAge: typeof maxAge === 'number' ? maxAge : undefined
     });
 
     res.status(200).json({ message: 'Login successful' });
@@ -110,6 +114,25 @@ export const logout = async (req: Request, res: Response, next: NextFunction) =>
     }
 
     res.status(200).json({ message: 'Logout successful' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const me = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    if (!req.user || !req.user.id) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const user = await authUseCase.getCurrentUser(req.user.id);
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    res.status(200).json(user);
   } catch (error) {
     next(error);
   }
