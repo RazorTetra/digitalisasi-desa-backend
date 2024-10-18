@@ -105,6 +105,40 @@ Response Body (Success - 200 OK):
 ]
 ```
 
+## Get Current User
+Endpoint: GET /api/v1/auth/me
+Authentication: Required
+
+Description: Retrieves the profile of the currently authenticated user.
+
+Request Body: None
+
+Response Body (Success - 200 OK):
+```json
+{
+  "id": "e6314752-c753-47dc-bc82-eae480d1b094",
+  "namaDepan": "John",
+  "namaBelakang": "Doe",
+  "nomorHp": "081234567890",
+  "email": "john.doe@example.com",
+  "role": "USER"
+}
+```
+
+Response Body (Failed - 401 Unauthorized):
+```json
+{
+  "error": "Unauthorized"
+}
+```
+
+Response Body (Failed - 404 Not Found):
+```json
+{
+  "error": "User not found"
+}
+```
+
 ## Get User by ID
 Endpoint: GET /api/v1/users/:id
 Authentication: Required
