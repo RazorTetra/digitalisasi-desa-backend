@@ -1,12 +1,14 @@
 // src/infrastructure/security/Jwt.ts
 
 import jwt from 'jsonwebtoken';
+import { Role } from '@prisma/client';
 
 export type JwtSignPayload = {
   id: string;
   nama: string;
   email: string;
   is_super: boolean;
+  role: Role;
 }
 
 export class Jwt {
@@ -37,6 +39,7 @@ export class Jwt {
       nama: payload.nama,
       email: payload.email,
       is_super: payload.is_super,
+      role: payload.role,
     };
   }
 }

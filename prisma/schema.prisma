@@ -23,3 +23,34 @@ enum Role {
   ADMIN
   USER
 }
+
+model VillageInfo {
+  id          String   @id @default(uuid())
+  history     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model VillageStructure {
+  id          String   @id @default(uuid())
+  position    String
+  name        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Gallery {
+  id          String   @id @default(uuid())
+  imageUrl    String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SocialMedia {
+  id          String   @id @default(uuid())
+  platform    String   @unique
+  url         String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

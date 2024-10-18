@@ -3,6 +3,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import { apiV1Router } from './infrastructure/routes/v1';
+import { v2 as cloudinary } from 'cloudinary';
 import { errorHandler } from './infrastructure/middlewares/errorHandler';
 import { setupDatabase } from './infrastructure/database/setupDatabase';
 import { corsMiddleware } from './infrastructure/config/corsConfig';
@@ -10,6 +11,13 @@ import session from 'express-session';
 import cookieParser from 'cookie-parser';
 
 dotenv.config();
+
+// Cloudinary configuration
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 const app = express();
 

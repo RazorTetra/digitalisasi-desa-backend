@@ -18,7 +18,7 @@ export class AuthUseCase {
   async login(
     email: string,
     password: string
-  ): Promise<{ accessToken: string }> {
+  ): Promise<{ accessToken: string; user: User }> {
     const user = await this.userRepository.findByEmail(email);
     if (!user) {
       throw new AuthenticationError("Email atau password salah");
@@ -30,12 +30,13 @@ export class AuthUseCase {
       id: user.id,
       nama: `${user.namaDepan} ${user.namaBelakang}`,
       email: user.email,
-      is_super: user.role === "ADMIN",
+      is_super: user.role === Role.ADMIN,
+      role: user.role,
     };
 
     const accessToken = await this.jwt.createAccessToken(payload);
 
-    return { accessToken };
+    return { accessToken, user };
   }
 
   async register(userData: Prisma.UserCreateInput): Promise<User> {

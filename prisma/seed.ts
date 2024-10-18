@@ -2,6 +2,8 @@
 
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcrypt'
+import { seedVillageHistory } from './seed/villageHistorySeed';
+import { seedSocialMedia } from './seed/socialMediaSeed';
 
 const prisma = new PrismaClient()
 
@@ -22,6 +24,9 @@ async function main() {
   })
 
   console.log({ admin })
+
+  await seedVillageHistory();
+  await seedSocialMedia();
 }
 
 main()
