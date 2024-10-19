@@ -4,7 +4,7 @@ import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcrypt'
 import { seedVillageHistory } from './seed/villageHistorySeed';
 import { seedSocialMedia } from './seed/socialMediaSeed';
-import { seedPengumuman } from './seed/pengumumanSeed';
+// import { seedPengumuman } from './seed/pengumumanSeed';
 
 const prisma = new PrismaClient()
 
@@ -28,7 +28,7 @@ async function main() {
 
   await seedVillageHistory();
   await seedSocialMedia();
-  await seedPengumuman();
+  // await seedPengumuman();
 }
 
 main()

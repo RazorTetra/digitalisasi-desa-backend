@@ -44,11 +44,14 @@ export const login = async (
     const maxAge = ms(accessTokenAge);
     const isProduction = process.env.NODE_ENV === 'production';
 
+    // Get sameSite configuration from environment variable
+    const sameSite = process.env.COOKIE_SAME_SITE || (isProduction ? 'none' : 'lax');
+
     // Set the access token in an HTTP-only cookie
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: isProduction ? 'none' : 'lax',
+      sameSite: sameSite as 'strict' | 'lax' | 'none',
       maxAge: typeof maxAge === "number" ? maxAge : undefined,
     });
 
@@ -59,9 +62,9 @@ export const login = async (
     res.status(200).json({
       message: "Login successful",
       user: {
-        id: user.id,
-        namaDepan: user.namaDepan,
-        namaBelakang: user.namaBelakang,
+        // id: user.id,
+        // namaDepan: user.namaDepan,
+        // namaBelakang: user.namaBelakang,
         email: user.email,
         role: user.role,
         // Include other non-sensitive user information as needed
@@ -132,11 +135,16 @@ export const logout = async (
   try {
     await authUseCase.logout();
 
+    const isProduction = process.env.NODE_ENV === "production";
+    // Get sameSite directly from environment variable
+    const sameSite = process.env.COOKIE_SAME_SITE;
+
     res.clearCookie("accessToken", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: isProduction,
+      sameSite: sameSite as 'strict' | 'lax' | 'none' | undefined,
     });
+
 
     if (req.session) {
       req.session.destroy((err) => {
