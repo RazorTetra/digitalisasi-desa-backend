@@ -51,7 +51,7 @@ export const login = async (
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: 'none',
+      sameSite: "none",
       maxAge: typeof maxAge === "number" ? maxAge : undefined,
     });
 
@@ -62,9 +62,9 @@ export const login = async (
     res.status(200).json({
       message: "Login successful",
       user: {
-        // id: user.id,
-        // namaDepan: user.namaDepan,
-        // namaBelakang: user.namaBelakang,
+        id: user.id,
+        namaDepan: user.namaDepan,
+        namaBelakang: user.namaBelakang,
         email: user.email,
         role: user.role,
         // Include other non-sensitive user information as needed
