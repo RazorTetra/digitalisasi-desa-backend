@@ -1,13 +1,16 @@
 {
   "name": "backend-project-ar",
   "version": "1.0.0",
-  "main": "dist/app.js",
+  "main": "index.js",
   "scripts": {
-    "build": "tsc && prisma generate",
+    "build": "tsc -p tsconfig.json",
     "start": "node dist/app.js",
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
     "seed": "ts-node prisma/seed.ts",
-    "generate-docs": "ts-node docs/generateDocs.ts"
+    "migrate": "prisma migrate deploy",
+    "migrate:test": "dotenv -e .env.test -- prisma migrate deploy",
+    "generate-docs": "ts-node docs/generateDocs.ts",
+    "postinstall": "prisma generate && prisma migrate deploy"
   },
   "keywords": [],
   "author": "",
