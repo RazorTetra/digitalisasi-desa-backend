@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "main": "dist/app.js",
   "scripts": {
-    "build": "tsc -p tsconfig.json && prisma generate",
-    "start": "node dist/app.js",
+    "build": "tsc",
+    "start": "node dist/src/app.js",
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
+    "vercel-build": "prisma generate",
     "seed": "ts-node prisma/seed.ts",
     "migrate": "prisma migrate deploy",
     "migrate:test": "dotenv -e .env.test -- prisma migrate deploy",
