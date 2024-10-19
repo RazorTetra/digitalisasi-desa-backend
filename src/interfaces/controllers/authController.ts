@@ -42,12 +42,13 @@ export const login = async (
 
     const accessTokenAge = process.env.ACCESS_TOKEN_AGE || "1d";
     const maxAge = ms(accessTokenAge);
+    const isProduction = process.env.NODE_ENV === 'production';
 
     // Set the access token in an HTTP-only cookie
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
       maxAge: typeof maxAge === "number" ? maxAge : undefined,
     });
 
