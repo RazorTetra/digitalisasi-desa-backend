@@ -18,7 +18,7 @@ export class AuthUseCase {
   async login(
     email: string,
     password: string
-  ): Promise<{ accessToken: string; user: User }> {
+  ): Promise<{ accessToken: string; user: Omit<User, 'password'> }> {
     const user = await this.userRepository.findByEmail(email);
     if (!user) {
       throw new AuthenticationError("Email atau password salah");
@@ -36,7 +36,10 @@ export class AuthUseCase {
 
     const accessToken = await this.jwt.createAccessToken(payload);
 
-    return { accessToken, user };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _, ...userWithoutPassword } = user;
+
+    return { accessToken, user: userWithoutPassword };
   }
 
   async register(userData: Prisma.UserCreateInput): Promise<User> {

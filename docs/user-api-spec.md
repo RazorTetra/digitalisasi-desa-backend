@@ -221,9 +221,13 @@ Request Body:
 Response Body (Success - 200 OK):
 ```json
 {
-  "status": "success",
-  "data": {
-    "message": "Login successful"
+  "message": "Login successful",
+  "user": {
+    "id": "e6314752-c753-47dc-bc82-eae480d1b094",
+    "namaDepan": "John",
+    "namaBelakang": "Doe",
+    "email": "john.doe@example.com",
+    "role": "USER"
   }
 }
 ```
@@ -231,11 +235,11 @@ Response Body (Success - 200 OK):
 Response Body (Failed - 401 Unauthorized):
 ```json
 {
-  "error": "Invalid email or password"
+  "error": "Email atau password salah"
 }
 ```
 
-Note: On successful login, an HTTP-only cookie named "accessToken" will be set with a 1-day expiration.
+Note: On successful login, an HTTP-only cookie named "accessToken" will be set with a 1-day expiration. The response body includes user information (excluding sensitive data like password).
 
 ## Logout User
 Endpoint: POST /api/v1/auth/logout

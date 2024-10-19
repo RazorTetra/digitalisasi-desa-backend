@@ -38,7 +38,7 @@ export const login = async (
 ) => {
   try {
     const { email, password } = loginSchema.parse(req.body);
-    const { accessToken } = await authUseCase.login(email, password);
+    const { accessToken, user } = await authUseCase.login(email, password);
 
     const accessTokenAge = process.env.ACCESS_TOKEN_AGE || "1d";
     const maxAge = ms(accessTokenAge);
@@ -54,7 +54,18 @@ export const login = async (
     // Log untuk debugging
     console.log("Login attempt:", { email, success: true, cookieSet: true });
 
-    res.status(200).json({ message: "Login successful" });
+    // Send user information (including role) in the response
+    res.status(200).json({
+      message: "Login successful",
+      user: {
+        id: user.id,
+        namaDepan: user.namaDepan,
+        namaBelakang: user.namaBelakang,
+        email: user.email,
+        role: user.role,
+        // Include other non-sensitive user information as needed
+      },
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       res.status(400).json({ error: "Invalid input", details: error.errors });
