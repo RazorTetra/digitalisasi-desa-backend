@@ -1,9 +1,9 @@
 // src/infrastructure/middlewares/errorHandler.ts
 
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const errorHandler = (err: any, req: Request, res: Response) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const errorHandler = (err: Error, req: Request, res: Response, _next: NextFunction): void => {
   console.error(err);
   res.status(500).json({ error: 'Internal Server Error' });
 };

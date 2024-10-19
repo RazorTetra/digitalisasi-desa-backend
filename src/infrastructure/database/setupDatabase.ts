@@ -10,6 +10,18 @@ export const setupDatabase = async () => {
     console.log('Database connected successfully');
   } catch (error) {
     console.error('Database connection failed', error);
+    // Tambahkan logika retry di sini jika diperlukan
     process.exit(1);
   }
 };
+
+export const disconnectDatabase = async () => {
+  await prisma.$disconnect();
+};
+
+process.on('SIGINT', async () => {
+  await disconnectDatabase();
+  process.exit(0);
+});
+
+export { prisma };
