@@ -42,17 +42,16 @@ export const login = async (
 
     const accessTokenAge = process.env.ACCESS_TOKEN_AGE || "1d";
     const maxAge = ms(accessTokenAge);
-    const isProduction = process.env.NODE_ENV === 'production';
-
-    // Get sameSite configuration from environment variable
-    // const sameSite = process.env.COOKIE_SAME_SITE || (isProduction ? 'none' : 'lax');
+    const isProduction = process.env.NODE_ENV === "production";
 
     // Set the access token in an HTTP-only cookie
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: "none",
+      sameSite: isProduction ? "none" : "lax",
       maxAge: typeof maxAge === "number" ? maxAge : undefined,
+      path: "/",
+      domain: process.env.COOKIE_DOMAIN || undefined,
     });
 
     // Log untuk debugging
@@ -67,7 +66,6 @@ export const login = async (
         namaBelakang: user.namaBelakang,
         email: user.email,
         role: user.role,
-        // Include other non-sensitive user information as needed
       },
     });
   } catch (error) {
@@ -142,9 +140,8 @@ export const logout = async (
     res.clearCookie("accessToken", {
       httpOnly: true,
       secure: isProduction,
-      sameSite: sameSite as 'strict' | 'lax' | 'none' | undefined,
+      sameSite: sameSite as "strict" | "lax" | "none" | undefined,
     });
-
 
     if (req.session) {
       req.session.destroy((err) => {
