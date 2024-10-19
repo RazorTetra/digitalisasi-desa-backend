@@ -18,7 +18,6 @@ const villageStructureSchema = z.object({
   name: z.string().min(1),
 });
 
-
 const socialMediaUpdateSchema = z.object({
   url: z.string().url(),
 });
@@ -58,7 +57,7 @@ export const getVillageStructure = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): Promise<void> => {
   try {
     const structure = await villageUseCase.getVillageStructure();
     res.json(structure);
@@ -71,7 +70,7 @@ export const createVillageStructure = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): Promise<void> => {
   try {
     const validatedData = villageStructureSchema.parse(req.body);
     const newStructure = await villageUseCase.createVillageStructure(
@@ -91,7 +90,7 @@ export const updateVillageStructure = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): Promise<void> => {
   try {
     const { id } = req.params;
     const validatedData = villageStructureSchema.parse(req.body);
@@ -115,7 +114,7 @@ export const deleteVillageStructure = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): Promise<void> => {
   try {
     const { id } = req.params;
     await villageUseCase.deleteVillageStructure(id);
@@ -129,7 +128,7 @@ export const getGallery = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): Promise<void> => {
   try {
     const gallery = await villageUseCase.getGallery();
     res.json(gallery);
@@ -141,15 +140,13 @@ export const getGallery = async (
 export const addGalleryImage = async (
   req: Request,
   res: Response,
-  next: NextFunction
-) => {
+  next: NextFunction,
+  imageUrl: string,
+  description?: string
+): Promise<void> => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: "No file uploaded" });
-    }
-    const { description } = req.body;
     const newImage = await villageUseCase.addGalleryImage(
-      req.file,
+      imageUrl,
       description
     );
     res.status(201).json(newImage);
@@ -162,7 +159,7 @@ export const deleteGalleryImage = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): Promise<void> => {
   try {
     const { id } = req.params;
     await villageUseCase.deleteGalleryImage(id);
@@ -176,7 +173,7 @@ export const getSocialMedia = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): Promise<void> => {
   try {
     const socialMedia = await villageUseCase.getSocialMedia();
     res.json(socialMedia);
@@ -185,15 +182,22 @@ export const getSocialMedia = async (
   }
 };
 
-export const updateSocialMedia = async (req: Request, res: Response, next: NextFunction) => {
+export const updateSocialMedia = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const { id } = req.params;
     const validatedData = socialMediaUpdateSchema.parse(req.body);
-    const updatedSocialMedia = await villageUseCase.updateSocialMedia(id, validatedData);
+    const updatedSocialMedia = await villageUseCase.updateSocialMedia(
+      id,
+      validatedData
+    );
     res.json(updatedSocialMedia);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: 'Invalid input', details: error.errors });
+      res.status(400).json({ error: "Invalid input", details: error.errors });
     } else {
       next(error);
     }

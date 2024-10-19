@@ -45,7 +45,7 @@ export class VillageRepository {
   async updateVillageStructure(
     id: string,
     data: Prisma.VillageStructureUpdateInput
-  ): Promise<VillageStructure> {
+  ): Promise<VillageStructure | null> {
     return prisma.villageStructure.update({
       where: { id },
       data,

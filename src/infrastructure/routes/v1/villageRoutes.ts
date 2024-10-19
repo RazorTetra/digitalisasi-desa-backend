@@ -2,6 +2,8 @@
 
 import express from "express";
 import multer from "multer";
+import { v2 as cloudinary } from "cloudinary";
+import streamifier from "streamifier";
 import {
   getVillageInfo,
   updateVillageInfo,
@@ -19,7 +21,31 @@ import { authMiddleware } from "../../middlewares/authMiddleware";
 import { adminMiddleware } from "../../middlewares/adminMiddleware";
 
 const router = express.Router();
-const upload = multer({ dest: "uploads/" });
+
+// Konfigurasi Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Konfigurasi Multer untuk menyimpan file di memori
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+// Fungsi untuk mengupload file ke Cloudinary
+const uploadToCloudinary = (file: Express.Multer.File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { folder: "village_gallery" },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result!.secure_url);
+      }
+    );
+    streamifier.createReadStream(file.buffer).pipe(uploadStream);
+  });
+};
 
 // Public routes
 router.get("/info", getVillageInfo);
@@ -47,15 +73,31 @@ router.delete(
   adminMiddleware,
   deleteVillageStructure
 );
+
 router.post(
   "/gallery",
   authMiddleware,
   adminMiddleware,
   upload.single("image"),
-  (req, res, next) => {
-    addGalleryImage(req, res, next).catch(next);
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    try {
+      if (!req.file) {
+        res.status(400).json({ error: "No file uploaded" });
+        return;
+      }
+      const imageUrl = await uploadToCloudinary(req.file);
+      const description = req.body.description as string | undefined;
+      await addGalleryImage(req, res, next, imageUrl, description);
+    } catch (error) {
+      next(error);
+    }
   }
 );
+
 router.delete(
   "/gallery/:id",
   authMiddleware,

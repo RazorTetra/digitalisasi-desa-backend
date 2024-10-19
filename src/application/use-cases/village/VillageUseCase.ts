@@ -57,12 +57,11 @@ export class VillageUseCase {
   }
 
   async addGalleryImage(
-    file: Express.Multer.File,
+    imageUrl: string,
     description?: string
   ): Promise<Gallery> {
-    const result = await cloudinary.uploader.upload(file.path);
     return this.villageRepository.addGalleryImage({
-      imageUrl: result.secure_url,
+      imageUrl,
       description,
     });
   }

@@ -6,6 +6,7 @@ import { UserPayload } from '../../types/auth';
 import { handleTokenError } from '../security/TokenCleanup';
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
       user?: UserPayload;
