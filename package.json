@@ -6,7 +6,8 @@
     "example": "example"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "prisma generate && tsc -p tsconfig.build.json",
+    "vercel-build": "prisma generate && prisma migrate deploy && tsc -p tsconfig.build.json",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
     "seed": "ts-node prisma/seed.ts",
