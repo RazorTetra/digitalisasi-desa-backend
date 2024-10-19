@@ -45,13 +45,13 @@ export const login = async (
     const isProduction = process.env.NODE_ENV === 'production';
 
     // Get sameSite configuration from environment variable
-    const sameSite = process.env.COOKIE_SAME_SITE || (isProduction ? 'none' : 'lax');
+    // const sameSite = process.env.COOKIE_SAME_SITE || (isProduction ? 'none' : 'lax');
 
     // Set the access token in an HTTP-only cookie
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: sameSite as 'strict' | 'lax' | 'none',
+      sameSite: 'none',
       maxAge: typeof maxAge === "number" ? maxAge : undefined,
     });
 
