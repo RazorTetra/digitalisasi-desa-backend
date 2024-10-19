@@ -1,11 +1,11 @@
 // src/interfaces/controllers/authController.ts
 
-import { Request, Response, NextFunction } from 'express';
-import { AuthUseCase } from '../../application/use-cases/auth/AuthUseCase';
-import { UserRepository } from '../../infrastructure/repositories/UserRepository';
-import { AuthenticationError } from '../../common/error/AuthenticationError';
-import { z } from 'zod';
-import ms from 'ms';
+import { Request, Response, NextFunction } from "express";
+import { AuthUseCase } from "../../application/use-cases/auth/AuthUseCase";
+import { UserRepository } from "../../infrastructure/repositories/UserRepository";
+import { AuthenticationError } from "../../common/error/AuthenticationError";
+import { z } from "zod";
+import ms from "ms";
 
 const userRepository = new UserRepository();
 const authUseCase = new AuthUseCase(userRepository);
@@ -31,26 +31,33 @@ const registerAdminSchema = z.object({
   password: z.string().min(12), // Consider stronger password requirements for admins
 });
 
-export const login = async (req: Request, res: Response, next: NextFunction) => {
+export const login = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { email, password } = loginSchema.parse(req.body);
     const { accessToken } = await authUseCase.login(email, password);
-    
-    const accessTokenAge = process.env.ACCESS_TOKEN_AGE || '1d';
+
+    const accessTokenAge = process.env.ACCESS_TOKEN_AGE || "1d";
     const maxAge = ms(accessTokenAge);
 
     // Set the access token in an HTTP-only cookie
-    res.cookie('accessToken', accessToken, {
+    res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: typeof maxAge === 'number' ? maxAge : undefined
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "none",
+      maxAge: typeof maxAge === "number" ? maxAge : undefined,
     });
 
-    res.status(200).json({ message: 'Login successful' });
+    // Log untuk debugging
+    console.log("Login attempt:", { email, success: true, cookieSet: true });
+
+    res.status(200).json({ message: "Login successful" });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: 'Invalid input', details: error.errors });
+      res.status(400).json({ error: "Invalid input", details: error.errors });
     } else if (error instanceof AuthenticationError) {
       res.status(401).json({ error: error.message });
     } else {
@@ -59,14 +66,20 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
-export const register = async (req: Request, res: Response, next: NextFunction) => {
+export const register = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const userData = registerSchema.parse(req.body);
     const newUser = await authUseCase.register(userData);
-    res.status(201).json({ message: 'Registration successful', userId: newUser.id });
+    res
+      .status(201)
+      .json({ message: "Registration successful", userId: newUser.id });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: 'Invalid input', details: error.errors });
+      res.status(400).json({ error: "Invalid input", details: error.errors });
     } else if (error instanceof AuthenticationError) {
       res.status(409).json({ error: error.message });
     } else {
@@ -75,18 +88,22 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
   }
 };
 
-export const registerAdmin = async (req: Request, res: Response, next: NextFunction) => {
+export const registerAdmin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const adminData = registerAdminSchema.parse(req.body);
     const newAdmin = await authUseCase.registerAdmin(adminData);
-    res.status(201).json({ 
-      message: 'Admin registration successful', 
+    res.status(201).json({
+      message: "Admin registration successful",
       userId: newAdmin.id,
-      role: newAdmin.role
+      role: newAdmin.role,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: 'Invalid input', details: error.errors });
+      res.status(400).json({ error: "Invalid input", details: error.errors });
     } else if (error instanceof AuthenticationError) {
       res.status(409).json({ error: error.message });
     } else {
@@ -95,40 +112,48 @@ export const registerAdmin = async (req: Request, res: Response, next: NextFunct
   }
 };
 
-export const logout = async (req: Request, res: Response, next: NextFunction) => {
+export const logout = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     await authUseCase.logout();
 
-    res.clearCookie('accessToken', {
+    res.clearCookie("accessToken", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
     });
 
     if (req.session) {
       req.session.destroy((err) => {
         if (err) {
-          console.error('Error destroying session:', err);
+          console.error("Error destroying session:", err);
         }
       });
     }
 
-    res.status(200).json({ message: 'Logout successful' });
+    res.status(200).json({ message: "Logout successful" });
   } catch (error) {
     next(error);
   }
 };
 
-export const me = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const me = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     if (!req.user || !req.user.id) {
-      res.status(401).json({ error: 'Unauthorized' });
+      res.status(401).json({ error: "Unauthorized" });
       return;
     }
 
     const user = await authUseCase.getCurrentUser(req.user.id);
     if (!user) {
-      res.status(404).json({ error: 'User not found' });
+      res.status(404).json({ error: "User not found" });
       return;
     }
 
