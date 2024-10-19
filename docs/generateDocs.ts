@@ -1,170 +1,53 @@
-// src/docs/generateUserApiDocs.ts
+// src/docs/generateApiDocs.ts
 
 import { z } from "zod";
 import fs from "fs";
 import path from "path";
+import { v4 as uuidv4 } from 'uuid';
 
 // Define Zod schemas
-const UserSchema = z.object({
+const KategoriSchema = z.object({
   id: z.string().uuid(),
-  namaDepan: z.string(),
-  namaBelakang: z.string(),
-  nomorHp: z.string(),
-  email: z.string().email(),
-  role: z.enum(["ADMIN", "USER"]),
+  nama: z.string(),
 });
 
-const UserInputSchema = UserSchema.omit({ id: true }).extend({
-  password: z.string().min(8),
+const PengumumanSchema = z.object({
+  id: z.string().uuid(),
+  judul: z.string(),
+  isi: z.string(),
+  tanggal: z.string().datetime(),
+  kategoriId: z.string().uuid(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
 });
 
-const AdminInputSchema = UserInputSchema.extend({
-  password: z.string().min(12), // Stronger password for admins
-});
-
-const UserUpdateSchema = UserInputSchema.partial();
-
-const LoginInputSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-});
-
-const SuccessResponse = z.object({
-  status: z.literal("success"),
-  data: z.unknown(),
-});
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ErrorResponse = z.object({
   error: z.string(),
-  details: z
-    .array(
-      z.object({
-        message: z.string(),
-      })
-    )
-    .optional(),
+  details: z.array(
+    z.object({
+      message: z.string(),
+    })
+  ).optional(),
 });
+
 // Function to generate Markdown documentation
-function generateUserApiDocs() {
-  let markdown = "# User API Specification\n\n";
+function generateApiDocs() {
+  let markdown = "# API Specification\n\n";
 
-  // Create User
-  markdown += "## Create User\n";
-  markdown += "Endpoint: POST /api/v1/users\n";
-  markdown += "Authentication: Required\n\n";
-  markdown += "Request Body:\n```json\n";
-  markdown += JSON.stringify(
-    UserInputSchema.parse({
-      namaDepan: "John",
-      namaBelakang: "Doe",
-      nomorHp: "081234567890",
-      email: "john.doe@example.com",
-      password: "securepassword",
-      role: "USER",
-    }),
-    null,
-    2
-  );
-  markdown += "\n```\n\n";
-  markdown += "Response Body (Success - 201 Created):\n```json\n";
-  markdown += JSON.stringify(
-    UserSchema.parse({
-      id: "e6314752-c753-47dc-bc82-eae480d1b094",
-      namaDepan: "John",
-      namaBelakang: "Doe",
-      nomorHp: "081234567890",
-      email: "john.doe@example.com",
-      role: "USER",
-    }),
-    null,
-    2
-  );
-  markdown += "\n```\n\n";
-  markdown += "Response Body (Failed - 400 Bad Request):\n```json\n";
-  markdown += JSON.stringify(
-    ErrorResponse.parse({
-      error: "Invalid input",
-      details: [
-        {
-          message: "Invalid email format",
-        },
-      ],
-    }),
-    null,
-    2
-  );
-  markdown += "\n```\n\n";
+  // Kategori API
+  markdown += "## Kategori API\n\n";
 
-  // Add Register Admin
-  markdown += "## Register Admin\n";
-  markdown += "Endpoint: POST /api/v1/auth/register-admin\n";
-  markdown += "Authentication: Required (Admin only)\n\n";
-  markdown += "Request Body:\n```json\n";
-  markdown += JSON.stringify(
-    AdminInputSchema.parse({
-      namaDepan: "Admin",
-      namaBelakang: "User",
-      nomorHp: "081234567890",
-      email: "admin@example.com",
-      password: "secureAdminPassword123",
-      role: "ADMIN",
-    }),
-    null,
-    2
-  );
-  markdown += "\n```\n\n";
-  markdown += "Response Body (Success - 201 Created):\n```json\n";
-  markdown += JSON.stringify(
-    SuccessResponse.parse({
-      status: "success",
-      data: {
-        message: "Admin registration successful",
-        userId: "f7314752-c753-47dc-bc82-eae480d1b095",
-        role: "ADMIN",
-      },
-    }),
-    null,
-    2
-  );
-  markdown += "\n```\n\n";
-  markdown += "Response Body (Failed - 400 Bad Request):\n```json\n";
-  markdown += JSON.stringify(
-    ErrorResponse.parse({
-      error: "Invalid input",
-      details: [
-        {
-          message: "Password must be at least 12 characters long",
-        },
-      ],
-    }),
-    null,
-    2
-  );
-  markdown += "\n```\n\n";
-  markdown += "Response Body (Failed - 403 Forbidden):\n```json\n";
-  markdown += JSON.stringify(
-    ErrorResponse.parse({
-      error: "Access denied. Admin privileges required.",
-    }),
-    null,
-    2
-  );
-  markdown += "\n```\n\n";
-
-  // Get All Users
-  markdown += "## Get All Users\n";
-  markdown += "Endpoint: GET /api/v1/users\n";
-  markdown += "Authentication: Required\n\n";
+  // Get All Kategori
+  markdown += "### Get All Kategori\n";
+  markdown += "Endpoint: GET /api/v1/kategori\n";
+  markdown += "Authentication: Not Required\n\n";
   markdown += "Response Body (Success - 200 OK):\n```json\n";
   markdown += JSON.stringify(
     [
-      UserSchema.parse({
-        id: "e6314752-c753-47dc-bc82-eae480d1b094",
-        namaDepan: "John",
-        namaBelakang: "Doe",
-        nomorHp: "081234567890",
-        email: "john.doe@example.com",
-        role: "USER",
+      KategoriSchema.parse({
+        id: uuidv4(),
+        nama: "Kesehatan",
       }),
     ],
     null,
@@ -172,193 +55,178 @@ function generateUserApiDocs() {
   );
   markdown += "\n```\n\n";
 
-  // Get Current User (auth/me)
-  markdown += "## Get Current User\n";
-  markdown += "Endpoint: GET /api/v1/auth/me\n";
-  markdown += "Authentication: Required\n\n";
-  markdown +=
-    "Description: Retrieves the profile of the currently authenticated user.\n\n";
-  markdown += "Request Body: None\n\n";
-  markdown += "Response Body (Success - 200 OK):\n```json\n";
-  markdown += JSON.stringify(
-    UserSchema.parse({
-      id: "e6314752-c753-47dc-bc82-eae480d1b094",
-      namaDepan: "John",
-      namaBelakang: "Doe",
-      nomorHp: "081234567890",
-      email: "john.doe@example.com",
-      role: "USER",
-    }),
-    null,
-    2
-  );
-  markdown += "\n```\n\n";
-  markdown += "Response Body (Failed - 401 Unauthorized):\n```json\n";
-  markdown += JSON.stringify(
-    ErrorResponse.parse({
-      error: "Unauthorized",
-    }),
-    null,
-    2
-  );
-  markdown += "\n```\n\n";
-  markdown += "Response Body (Failed - 404 Not Found):\n```json\n";
-  markdown += JSON.stringify(
-    ErrorResponse.parse({
-      error: "User not found",
-    }),
-    null,
-    2
-  );
-  markdown += "\n```\n\n";
-
-  // Get User by ID
-  markdown += "## Get User by ID\n";
-  markdown += "Endpoint: GET /api/v1/users/:id\n";
-  markdown += "Authentication: Required\n\n";
-  markdown += "Response Body (Success - 200 OK):\n```json\n";
-  markdown += JSON.stringify(
-    UserSchema.parse({
-      id: "e6314752-c753-47dc-bc82-eae480d1b094",
-      namaDepan: "John",
-      namaBelakang: "Doe",
-      nomorHp: "081234567890",
-      email: "john.doe@example.com",
-      role: "USER",
-    }),
-    null,
-    2
-  );
-  markdown += "\n```\n\n";
-  markdown += "Response Body (Failed - 404 Not Found):\n```json\n";
-  markdown += JSON.stringify(
-    ErrorResponse.parse({
-      error: "User not found",
-    }),
-    null,
-    2
-  );
-  markdown += "\n```\n\n";
-
-  // Update User
-  markdown += "## Update User\n";
-  markdown += "Endpoint: PUT /api/v1/users/:id\n";
-  markdown += "Authentication: Required\n\n";
+  // Create Kategori
+  markdown += "### Create Kategori\n";
+  markdown += "Endpoint: POST /api/v1/kategori\n";
+  markdown += "Authentication: Required (Admin only)\n\n";
   markdown += "Request Body:\n```json\n";
-  markdown += JSON.stringify(
-    UserUpdateSchema.parse({
-      namaDepan: "Jane",
-      nomorHp: "087654321098",
-    }),
-    null,
-    2
-  );
-  markdown += "\n```\n\n";
-  markdown += "Response Body (Success - 200 OK):\n```json\n";
-  markdown += JSON.stringify(
-    UserSchema.parse({
-      id: "e6314752-c753-47dc-bc82-eae480d1b094",
-      namaDepan: "Jane",
-      namaBelakang: "Doe",
-      nomorHp: "087654321098",
-      email: "john.doe@example.com",
-      role: "USER",
-    }),
-    null,
-    2
-  );
-  markdown += "\n```\n\n";
-  markdown += "Response Body (Failed - 404 Not Found):\n```json\n";
-  markdown += JSON.stringify(
-    ErrorResponse.parse({
-      error: "User not found",
-    }),
-    null,
-    2
-  );
-  markdown += "\n```\n\n";
-
-  // Delete User
-  markdown += "## Delete User\n";
-  markdown += "Endpoint: DELETE /api/v1/users/:id\n";
-  markdown += "Authentication: Required\n\n";
-  markdown += "Response (Success - 204 No Content): No body\n\n";
-  markdown += "Response Body (Failed - 404 Not Found):\n```json\n";
-  markdown += JSON.stringify(
-    ErrorResponse.parse({
-      error: "User not found",
-    }),
-    null,
-    2
-  );
-  markdown += "\n```\n\n";
-
-  // Login User
-  markdown += "## Login User\n";
-  markdown += "Endpoint: POST /api/v1/auth/login\n";
-  markdown += "Authentication: Not Required\n\n";
-  markdown += "Request Body:\n```json\n";
-  markdown += JSON.stringify(
-    LoginInputSchema.parse({
-      email: "john.doe@example.com",
-      password: "securepassword",
-    }),
-    null,
-    2
-  );
-  markdown += "\n```\n\n";
-  markdown += "Response Body (Success - 200 OK):\n```json\n";
   markdown += JSON.stringify(
     {
-      message: "Login successful",
-      user: {
-        id: "e6314752-c753-47dc-bc82-eae480d1b094",
-        namaDepan: "John",
-        namaBelakang: "Doe",
-        email: "john.doe@example.com",
-        role: "USER",
-      },
+      nama: "Ekonomi",
     },
     null,
     2
   );
   markdown += "\n```\n\n";
-  markdown += "Response Body (Failed - 401 Unauthorized):\n```json\n";
+  markdown += "Response Body (Success - 201 Created):\n```json\n";
   markdown += JSON.stringify(
-    ErrorResponse.parse({
-      error: "Email atau password salah",
+    KategoriSchema.parse({
+      id: uuidv4(),
+      nama: "Ekonomi",
     }),
     null,
     2
   );
   markdown += "\n```\n\n";
-  markdown +=
-    'Note: On successful login, an HTTP-only cookie named "accessToken" will be set with a 1-day expiration. The response body includes user information (excluding sensitive data like password).\n\n';
 
-  // Logout User
-  markdown += "## Logout User\n";
-  markdown += "Endpoint: POST /api/v1/auth/logout\n";
-  markdown += "Authentication: Required\n\n";
-  markdown += "Request Body: None\n\n";
+  // Update Kategori
+  markdown += "### Update Kategori\n";
+  markdown += "Endpoint: PUT /api/v1/kategori/:id\n";
+  markdown += "Authentication: Required (Admin only)\n\n";
+  markdown += "Request Body:\n```json\n";
+  markdown += JSON.stringify(
+    {
+      nama: "Ekonomi dan Bisnis",
+    },
+    null,
+    2
+  );
+  markdown += "\n```\n\n";
   markdown += "Response Body (Success - 200 OK):\n```json\n";
   markdown += JSON.stringify(
-    SuccessResponse.parse({
-      status: "success",
-      data: {
-        message: "Logout successful",
-      },
+    KategoriSchema.parse({
+      id: uuidv4(),
+      nama: "Ekonomi dan Bisnis",
     }),
     null,
     2
   );
   markdown += "\n```\n\n";
-  markdown +=
-    'Note: On successful logout, the "accessToken" cookie will be cleared.\n\n';
+
+  // Delete Kategori
+  markdown += "### Delete Kategori\n";
+  markdown += "Endpoint: DELETE /api/v1/kategori/:id\n";
+  markdown += "Authentication: Required (Admin only)\n\n";
+  markdown += "Response (Success - 204 No Content): No body\n\n";
+
+  // Pengumuman API
+  markdown += "## Pengumuman API\n\n";
+
+  // Get All Pengumuman
+  markdown += "### Get All Pengumuman\n";
+  markdown += "Endpoint: GET /api/v1/pengumuman\n";
+  markdown += "Authentication: Not Required\n\n";
+  markdown += "Response Body (Success - 200 OK):\n```json\n";
+  markdown += JSON.stringify(
+    [
+      PengumumanSchema.parse({
+        id: uuidv4(),
+        judul: "Jadwal Vaksinasi COVID-19",
+        isi: "Vaksinasi COVID-19 tahap kedua akan dilaksanakan pada tanggal 15 Juli 2024...",
+        tanggal: new Date().toISOString(),
+        kategoriId: uuidv4(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }),
+    ],
+    null,
+    2
+  );
+  markdown += "\n```\n\n";
+
+  // Get Pengumuman by ID
+  markdown += "### Get Pengumuman by ID\n";
+  markdown += "Endpoint: GET /api/v1/pengumuman/:id\n";
+  markdown += "Authentication: Not Required\n\n";
+  markdown += "Response Body (Success - 200 OK):\n```json\n";
+  markdown += JSON.stringify(
+    PengumumanSchema.parse({
+      id: uuidv4(),
+      judul: "Jadwal Vaksinasi COVID-19",
+      isi: "Vaksinasi COVID-19 tahap kedua akan dilaksanakan pada tanggal 15 Juli 2024...",
+      tanggal: new Date().toISOString(),
+      kategoriId: uuidv4(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }),
+    null,
+    2
+  );
+  markdown += "\n```\n\n";
+
+  // Create Pengumuman
+  markdown += "### Create Pengumuman\n";
+  markdown += "Endpoint: POST /api/v1/pengumuman\n";
+  markdown += "Authentication: Required (Admin only)\n\n";
+  markdown += "Request Body:\n```json\n";
+  markdown += JSON.stringify(
+    {
+      judul: "Pembukaan Pendaftaran UMKM",
+      isi: "Pendaftaran UMKM untuk program bantuan modal usaha dibuka mulai 1 Agustus 2024...",
+      tanggal: new Date().toISOString(),
+      kategoriId: uuidv4(),
+    },
+    null,
+    2
+  );
+  markdown += "\n```\n\n";
+  markdown += "Response Body (Success - 201 Created):\n```json\n";
+  markdown += JSON.stringify(
+    PengumumanSchema.parse({
+      id: uuidv4(),
+      judul: "Pembukaan Pendaftaran UMKM",
+      isi: "Pendaftaran UMKM untuk program bantuan modal usaha dibuka mulai 1 Agustus 2024...",
+      tanggal: new Date().toISOString(),
+      kategoriId: uuidv4(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }),
+    null,
+    2
+  );
+  markdown += "\n```\n\n";
+
+  // Update Pengumuman
+  markdown += "### Update Pengumuman\n";
+  markdown += "Endpoint: PUT /api/v1/pengumuman/:id\n";
+  markdown += "Authentication: Required (Admin only)\n\n";
+  markdown += "Request Body:\n```json\n";
+  markdown += JSON.stringify(
+    {
+      judul: "Update: Pembukaan Pendaftaran UMKM",
+      isi: "Pendaftaran UMKM untuk program bantuan modal usaha diperpanjang hingga 15 Agustus 2024...",
+      kategoriId: uuidv4(),
+    },
+    null,
+    2
+  );
+  markdown += "\n```\n\n";
+  markdown += "Response Body (Success - 200 OK):\n```json\n";
+  markdown += JSON.stringify(
+    PengumumanSchema.parse({
+      id: uuidv4(),
+      judul: "Update: Pembukaan Pendaftaran UMKM",
+      isi: "Pendaftaran UMKM untuk program bantuan modal usaha diperpanjang hingga 15 Agustus 2024...",
+      tanggal: new Date().toISOString(),
+      kategoriId: uuidv4(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }),
+    null,
+    2
+  );
+  markdown += "\n```\n\n";
+
+  // Delete Pengumuman
+  markdown += "### Delete Pengumuman\n";
+  markdown += "Endpoint: DELETE /api/v1/pengumuman/:id\n";
+  markdown += "Authentication: Required (Admin only)\n\n";
+  markdown += "Response (Success - 204 No Content): No body\n\n";
 
   // Write to file
-  const outputPath = path.join(__dirname, "user-api-spec.md");
+  const outputPath = path.join(__dirname, "pengumuman-api-spec.md");
   fs.writeFileSync(outputPath, markdown);
-  console.log(`User API documentation generated successfully at ${outputPath}`);
+  console.log(`API documentation generated successfully at ${outputPath}`);
 }
 
-generateUserApiDocs();
+generateApiDocs();

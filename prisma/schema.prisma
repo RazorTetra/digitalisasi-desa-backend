@@ -54,3 +54,22 @@ model SocialMedia {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model Kategori {
+  id        String   @id @default(uuid())
+  nama      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Pengumuman Pengumuman[]
+}
+
+model Pengumuman {
+  id        String   @id @default(uuid())
+  judul     String
+  isi       String
+  tanggal   DateTime
+  kategoriId String
+  kategori  Kategori @relation(fields: [kategoriId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
