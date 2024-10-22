@@ -7,6 +7,7 @@ import { protectedRouter } from './protectedRoutes';
 import { villageRouter } from './villageRoutes';
 import { pengumumanRouter } from './pengumumanRoutes';
 import { kategoriRouter } from './kategoriRoutes';
+import { tamuWajibLaporRouter } from './tamuWajibLaporRoutes';
 
 const router = express.Router();
 
@@ -16,5 +17,6 @@ router.use('/protected', protectedRouter);
 router.use('/village', villageRouter);
 router.use('/pengumuman', pengumumanRouter);
 router.use('/kategori', kategoriRouter);
+router.use('/tamu-wajib-lapor', tamuWajibLaporRouter);
 
 export { router as apiV1Router };

@@ -73,3 +73,27 @@ model Pengumuman {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model TamuWajibLapor {
+  id             String   @id @default(uuid())
+  trackingCode   String   @unique // Kode tracking untuk publik
+  nama           String
+  nik            String
+  alamatAsal     String
+  tujuan         String
+  lamaMenginap   String
+  tempatMenginap String
+  nomorTelepon   String
+  status         Status   @default(PENDING)
+  statusMessage  String?  // Pesan optional dari admin
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([trackingCode])
+}
+
+enum Status {
+  PENDING
+  APPROVED
+  REJECTED
+}

@@ -1,4 +1,4 @@
-// src/docs/generateApiDocs.ts
+// src/docs/generateTamuWajibLaporDocs.ts
 
 import { z } from "zod";
 import fs from "fs";
@@ -6,196 +6,129 @@ import path from "path";
 import { v4 as uuidv4 } from 'uuid';
 
 // Define Zod schemas
-const KategoriSchema = z.object({
+// Kita menambahkan eslint-disable untuk schema yang akan digunakan sebagai type reference
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const TamuWajibLaporSchema = z.object({
   id: z.string().uuid(),
+  trackingCode: z.string(),
   nama: z.string(),
-});
-
-const PengumumanSchema = z.object({
-  id: z.string().uuid(),
-  judul: z.string(),
-  isi: z.string(),
-  tanggal: z.string().datetime(),
-  kategoriId: z.string().uuid(),
+  nik: z.string(),
+  alamatAsal: z.string(),
+  tujuan: z.string(),
+  lamaMenginap: z.string(),
+  tempatMenginap: z.string(),
+  nomorTelepon: z.string(),
+  status: z.enum(['PENDING', 'APPROVED', 'REJECTED']),
+  statusMessage: z.string().nullable().optional(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const ErrorResponse = z.object({
-  error: z.string(),
-  details: z.array(
-    z.object({
-      message: z.string(),
-    })
-  ).optional(),
-});
+// Type untuk response status publik
+type PublicStatus = {
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  statusMessage?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
 
-// Function to generate Markdown documentation
+// Type untuk full laporan
+type TamuWajibLapor = z.infer<typeof TamuWajibLaporSchema>;
+
 function generateApiDocs() {
-  let markdown = "# API Specification\n\n";
+  let markdown = "# Tamu Wajib Lapor API Specification\n\n";
 
-  // Kategori API
-  markdown += "## Kategori API\n\n";
+  // === PUBLIC ENDPOINTS ===
+  markdown += "## Public Endpoints\n\n";
 
-  // Get All Kategori
-  markdown += "### Get All Kategori\n";
-  markdown += "Endpoint: GET /api/v1/kategori\n";
+  // Submit Laporan
+  markdown += "### Submit Laporan Tamu\n";
+  markdown += "Endpoint: POST /api/v1/tamu-wajib-lapor\n";
+  markdown += "Authentication: Not Required\n\n";
+  markdown += "Request Body:\n```json\n";
+  markdown += JSON.stringify(
+    {
+      nama: "John Doe",
+      nik: "1234567890123456",
+      alamatAsal: "Jl. Contoh No. 123, Jakarta",
+      tujuan: "Liburan",
+      lamaMenginap: "4-7",
+      tempatMenginap: "Villa Indah, Jl. Danau No. 45",
+      nomorTelepon: "08123456789"
+    },
+    null,
+    2
+  );
+  markdown += "\n```\n\n";
+
+  const samplePublicStatus: PublicStatus = {
+    status: "APPROVED",
+    statusMessage: "Dokumen lengkap dan valid",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  const sampleFullLaporan: TamuWajibLapor = {
+    id: uuidv4(),
+    trackingCode: "TWL1234ABCD",
+    nama: "John Doe",
+    nik: "1234567890123456",
+    alamatAsal: "Jl. Contoh No. 123, Jakarta",
+    tujuan: "Liburan",
+    lamaMenginap: "4-7",
+    tempatMenginap: "Villa Indah, Jl. Danau No. 45",
+    nomorTelepon: "08123456789",
+    status: "PENDING",
+    statusMessage: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  // Get Public Status
+  markdown += "### Check Status by Tracking Code\n";
+  markdown += "Endpoint: GET /api/v1/tamu-wajib-lapor/status/:trackingCode\n";
   markdown += "Authentication: Not Required\n\n";
   markdown += "Response Body (Success - 200 OK):\n```json\n";
-  markdown += JSON.stringify(
-    [
-      KategoriSchema.parse({
-        id: uuidv4(),
-        nama: "Kesehatan",
-      }),
-    ],
-    null,
-    2
-  );
+  markdown += JSON.stringify(samplePublicStatus, null, 2);
   markdown += "\n```\n\n";
 
-  // Create Kategori
-  markdown += "### Create Kategori\n";
-  markdown += "Endpoint: POST /api/v1/kategori\n";
-  markdown += "Authentication: Required (Admin only)\n\n";
-  markdown += "Request Body:\n```json\n";
-  markdown += JSON.stringify(
-    {
-      nama: "Ekonomi",
-    },
-    null,
-    2
-  );
-  markdown += "\n```\n\n";
-  markdown += "Response Body (Success - 201 Created):\n```json\n";
-  markdown += JSON.stringify(
-    KategoriSchema.parse({
-      id: uuidv4(),
-      nama: "Ekonomi",
-    }),
-    null,
-    2
-  );
-  markdown += "\n```\n\n";
-
-  // Update Kategori
-  markdown += "### Update Kategori\n";
-  markdown += "Endpoint: PUT /api/v1/kategori/:id\n";
-  markdown += "Authentication: Required (Admin only)\n\n";
-  markdown += "Request Body:\n```json\n";
-  markdown += JSON.stringify(
-    {
-      nama: "Ekonomi dan Bisnis",
-    },
-    null,
-    2
-  );
-  markdown += "\n```\n\n";
-  markdown += "Response Body (Success - 200 OK):\n```json\n";
-  markdown += JSON.stringify(
-    KategoriSchema.parse({
-      id: uuidv4(),
-      nama: "Ekonomi dan Bisnis",
-    }),
-    null,
-    2
-  );
-  markdown += "\n```\n\n";
-
-  // Delete Kategori
-  markdown += "### Delete Kategori\n";
-  markdown += "Endpoint: DELETE /api/v1/kategori/:id\n";
-  markdown += "Authentication: Required (Admin only)\n\n";
-  markdown += "Response (Success - 204 No Content): No body\n\n";
-
-  // Pengumuman API
-  markdown += "## Pengumuman API\n\n";
-
-  // Get All Pengumuman
-  markdown += "### Get All Pengumuman\n";
-  markdown += "Endpoint: GET /api/v1/pengumuman\n";
+  // Get Recent Submissions
+  markdown += "### Get Recent Submissions\n";
+  markdown += "Endpoint: GET /api/v1/tamu-wajib-lapor/recent?limit=10\n";
   markdown += "Authentication: Not Required\n\n";
   markdown += "Response Body (Success - 200 OK):\n```json\n";
-  markdown += JSON.stringify(
-    [
-      PengumumanSchema.parse({
-        id: uuidv4(),
-        judul: "Jadwal Vaksinasi COVID-19",
-        isi: "Vaksinasi COVID-19 tahap kedua akan dilaksanakan pada tanggal 15 Juli 2024...",
-        tanggal: new Date().toISOString(),
-        kategoriId: uuidv4(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      }),
-    ],
-    null,
-    2
-  );
+  markdown += JSON.stringify([samplePublicStatus], null, 2);
   markdown += "\n```\n\n";
 
-  // Get Pengumuman by ID
-  markdown += "### Get Pengumuman by ID\n";
-  markdown += "Endpoint: GET /api/v1/pengumuman/:id\n";
-  markdown += "Authentication: Not Required\n\n";
+  // === ADMIN ENDPOINTS ===
+  markdown += "## Admin Endpoints\n";
+  markdown += "All admin endpoints require authentication and admin role.\n\n";
+
+  // Get All Laporan
+  markdown += "### Get All Laporan\n";
+  markdown += "Endpoint: GET /api/v1/tamu-wajib-lapor\n";
+  markdown += "Authentication: Required (Admin)\n\n";
   markdown += "Response Body (Success - 200 OK):\n```json\n";
-  markdown += JSON.stringify(
-    PengumumanSchema.parse({
-      id: uuidv4(),
-      judul: "Jadwal Vaksinasi COVID-19",
-      isi: "Vaksinasi COVID-19 tahap kedua akan dilaksanakan pada tanggal 15 Juli 2024...",
-      tanggal: new Date().toISOString(),
-      kategoriId: uuidv4(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }),
-    null,
-    2
-  );
+  markdown += JSON.stringify([sampleFullLaporan], null, 2);
   markdown += "\n```\n\n";
 
-  // Create Pengumuman
-  markdown += "### Create Pengumuman\n";
-  markdown += "Endpoint: POST /api/v1/pengumuman\n";
-  markdown += "Authentication: Required (Admin only)\n\n";
+  // Get Laporan by ID
+  markdown += "### Get Laporan by ID\n";
+  markdown += "Endpoint: GET /api/v1/tamu-wajib-lapor/:id\n";
+  markdown += "Authentication: Required (Admin)\n\n";
+  markdown += "Response Body (Success - 200 OK):\n```json\n";
+  markdown += JSON.stringify(sampleFullLaporan, null, 2);
+  markdown += "\n```\n\n";
+
+  // Update Status
+  markdown += "### Update Status\n";
+  markdown += "Endpoint: PUT /api/v1/tamu-wajib-lapor/:id/status\n";
+  markdown += "Authentication: Required (Admin)\n\n";
   markdown += "Request Body:\n```json\n";
   markdown += JSON.stringify(
     {
-      judul: "Pembukaan Pendaftaran UMKM",
-      isi: "Pendaftaran UMKM untuk program bantuan modal usaha dibuka mulai 1 Agustus 2024...",
-      tanggal: new Date().toISOString(),
-      kategoriId: uuidv4(),
-    },
-    null,
-    2
-  );
-  markdown += "\n```\n\n";
-  markdown += "Response Body (Success - 201 Created):\n```json\n";
-  markdown += JSON.stringify(
-    PengumumanSchema.parse({
-      id: uuidv4(),
-      judul: "Pembukaan Pendaftaran UMKM",
-      isi: "Pendaftaran UMKM untuk program bantuan modal usaha dibuka mulai 1 Agustus 2024...",
-      tanggal: new Date().toISOString(),
-      kategoriId: uuidv4(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }),
-    null,
-    2
-  );
-  markdown += "\n```\n\n";
-
-  // Update Pengumuman
-  markdown += "### Update Pengumuman\n";
-  markdown += "Endpoint: PUT /api/v1/pengumuman/:id\n";
-  markdown += "Authentication: Required (Admin only)\n\n";
-  markdown += "Request Body:\n```json\n";
-  markdown += JSON.stringify(
-    {
-      judul: "Update: Pembukaan Pendaftaran UMKM",
-      isi: "Pendaftaran UMKM untuk program bantuan modal usaha diperpanjang hingga 15 Agustus 2024...",
-      kategoriId: uuidv4(),
+      status: "APPROVED",
+      statusMessage: "Dokumen lengkap dan valid"
     },
     null,
     2
@@ -203,28 +136,51 @@ function generateApiDocs() {
   markdown += "\n```\n\n";
   markdown += "Response Body (Success - 200 OK):\n```json\n";
   markdown += JSON.stringify(
-    PengumumanSchema.parse({
-      id: uuidv4(),
-      judul: "Update: Pembukaan Pendaftaran UMKM",
-      isi: "Pendaftaran UMKM untuk program bantuan modal usaha diperpanjang hingga 15 Agustus 2024...",
-      tanggal: new Date().toISOString(),
-      kategoriId: uuidv4(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }),
+    {
+      ...sampleFullLaporan,
+      status: "APPROVED",
+      statusMessage: "Dokumen lengkap dan valid",
+    }, 
+    null, 
+    2
+  );
+  markdown += "\n```\n\n";
+
+  // Delete Laporan
+  markdown += "### Delete Laporan\n";
+  markdown += "Endpoint: DELETE /api/v1/tamu-wajib-lapor/:id\n";
+  markdown += "Authentication: Required (Admin)\n\n";
+  markdown += "Response: 204 No Content\n\n";
+
+  // Error Responses
+  markdown += "## Error Responses\n\n";
+  
+  markdown += "### Validation Error (400 Bad Request)\n```json\n";
+  markdown += JSON.stringify(
+    {
+      error: "Invalid input",
+      details: [
+        { message: "NIK harus terdiri dari 16 digit" },
+        { message: "Nomor telepon minimal 10 digit" }
+      ]
+    },
     null,
     2
   );
   markdown += "\n```\n\n";
 
-  // Delete Pengumuman
-  markdown += "### Delete Pengumuman\n";
-  markdown += "Endpoint: DELETE /api/v1/pengumuman/:id\n";
-  markdown += "Authentication: Required (Admin only)\n\n";
-  markdown += "Response (Success - 204 No Content): No body\n\n";
+  markdown += "### Not Found Error (404 Not Found)\n```json\n";
+  markdown += JSON.stringify(
+    {
+      error: "Laporan not found"
+    },
+    null,
+    2
+  );
+  markdown += "\n```\n\n";
 
   // Write to file
-  const outputPath = path.join(__dirname, "pengumuman-api-spec.md");
+  const outputPath = path.join(__dirname, "tamu-wajib-lapor-api-spec.md");
   fs.writeFileSync(outputPath, markdown);
   console.log(`API documentation generated successfully at ${outputPath}`);
 }
