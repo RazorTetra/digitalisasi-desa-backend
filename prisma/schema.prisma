@@ -92,6 +92,15 @@ model TamuWajibLapor {
   @@index([trackingCode])
 }
 
+model FormatSurat {
+  id          String   @id @default(uuid())
+  nama        String
+  fileUrl     String
+  filename    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 enum Status {
   PENDING
   APPROVED

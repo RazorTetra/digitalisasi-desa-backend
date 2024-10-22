@@ -8,6 +8,7 @@ import { villageRouter } from './villageRoutes';
 import { pengumumanRouter } from './pengumumanRoutes';
 import { kategoriRouter } from './kategoriRoutes';
 import { tamuWajibLaporRouter } from './tamuWajibLaporRoutes';
+import { suratRouter } from './suratRoutes';
 
 const router = express.Router();
 
@@ -18,5 +19,6 @@ router.use('/village', villageRouter);
 router.use('/pengumuman', pengumumanRouter);
 router.use('/kategori', kategoriRouter);
 router.use('/tamu-wajib-lapor', tamuWajibLaporRouter);
+router.use('/surat', suratRouter);
 
 export { router as apiV1Router };
