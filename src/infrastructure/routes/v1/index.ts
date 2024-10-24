@@ -9,6 +9,7 @@ import { pengumumanRouter } from './pengumumanRoutes';
 import { kategoriRouter } from './kategoriRoutes';
 import { tamuWajibLaporRouter } from './tamuWajibLaporRoutes';
 import { suratRouter } from './suratRoutes';
+import { financeRouter } from './financeRoutes';
 
 const router = express.Router();
 
@@ -20,5 +21,6 @@ router.use('/pengumuman', pengumumanRouter);
 router.use('/kategori', kategoriRouter);
 router.use('/tamu-wajib-lapor', tamuWajibLaporRouter);
 router.use('/surat', suratRouter);
+router.use('/finance', financeRouter)
 
 export { router as apiV1Router };
