@@ -13,6 +13,7 @@ import { financeRouter } from './financeRoutes';
 import { beritaRouter } from './beritaRoutes';
 import { beritaKategoriRouter } from './beritaKategoriRoutes';
 import { heroBannerRouter } from './heroBannerRoutes';
+import { tourismRouter } from './tourismRoutes';
 
 const router = express.Router();
 
@@ -28,5 +29,6 @@ router.use('/finance', financeRouter)
 router.use('/berita', beritaRouter);
 router.use('/berita-kategori', beritaKategoriRouter);
 router.use('/hero-banner', heroBannerRouter);
+router.use('/tourism', tourismRouter);
 
 export { router as apiV1Router };
