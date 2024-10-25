@@ -7,9 +7,10 @@ import { errorHandler } from './infrastructure/middlewares/errorHandler';
 import { setupDatabase } from './infrastructure/database/setupDatabase';
 import { corsMiddleware } from './infrastructure/config/corsConfig';
 import cookieParser from 'cookie-parser';
+import { initializeRedis } from './infrastructure/config/redisConfig';
 
 dotenv.config();
-
+initializeRedis();
 const app = express();
 
 app.use(corsMiddleware);

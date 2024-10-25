@@ -148,3 +148,43 @@ model FinanceFinancingItem {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
+
+
+
+model BeritaKategori {
+  id        String   @id @default(uuid())
+  nama      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  berita    BeritaToKategori[]
+}
+
+model Berita {
+  id          String   @id @default(uuid())
+  judul       String
+  slug        String   @unique
+  ringkasan   String
+  isi         String
+  gambarUrl   String
+  isHighlight Boolean  @default(false)
+  penulis     String
+  tanggal     DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  kategori    BeritaToKategori[]
+
+  @@index([slug])
+  @@index([tanggal])
+}
+
+// Junction table untuk many-to-many relationship
+model BeritaToKategori {
+  berita      Berita         @relation(fields: [beritaId], references: [id], onDelete: Cascade)
+  beritaId    String
+  kategori    BeritaKategori @relation(fields: [kategoriId], references: [id], onDelete: Cascade)
+  kategoriId  String
+  assignedAt  DateTime       @default(now())
+
+  @@id([beritaId, kategoriId])
+}
