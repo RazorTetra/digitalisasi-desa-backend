@@ -10,10 +10,10 @@ Authentication: Not Required
 Response Body (200 OK):
 ```json
 {
-  "id": "a9a43a35-7d77-4b7b-8ee8-e6bb3feb78c2",
+  "id": "ffd8c975-56aa-426d-9d6e-3a9c5cb45454",
   "imageUrl": "https://example.com/banner.jpg",
-  "createdAt": "2024-10-30T12:06:22.193Z",
-  "updatedAt": "2024-10-30T12:06:22.194Z"
+  "createdAt": "2024-10-30T16:09:03.677Z",
+  "updatedAt": "2024-10-30T16:09:03.678Z"
 }
 ```
 
@@ -25,10 +25,10 @@ Authentication: Not Required
 Response Body (200 OK):
 ```json
 {
-  "id": "af7489ac-112d-42e6-ae21-1f2b44c41162",
+  "id": "b05df643-7d98-44bd-bfab-6a2560e258fa",
   "content": "Informasi keuangan desa",
-  "createdAt": "2024-10-30T12:06:22.194Z",
-  "updatedAt": "2024-10-30T12:06:22.194Z"
+  "createdAt": "2024-10-30T16:09:03.678Z",
+  "updatedAt": "2024-10-30T16:09:03.678Z"
 }
 ```
 
@@ -41,64 +41,12 @@ Response Body (200 OK):
 ```json
 [
   {
-    "id": "c89e3f77-84e9-4b48-ac47-e2c766408588",
+    "id": "039dad63-9313-48e6-bae2-f123ce84ed8a",
     "tahun": 2024,
-    "createdAt": "2024-10-30T12:06:22.194Z",
-    "updatedAt": "2024-10-30T12:06:22.194Z"
+    "createdAt": "2024-10-30T16:09:03.678Z",
+    "updatedAt": "2024-10-30T16:09:03.678Z"
   }
 ]
-```
-
-### Get Latest Period
-Endpoint: GET /api/v1/finance/periods/latest
-Description: Mendapatkan periode terbaru dengan ringkasan keuangan
-Authentication: Not Required
-
-Response Body (200 OK):
-```json
-{
-  "id": "c89e3f77-84e9-4b48-ac47-e2c766408588",
-  "tahun": 2024,
-  "createdAt": "2024-10-30T12:06:22.194Z",
-  "updatedAt": "2024-10-30T12:06:22.194Z",
-  "incomes": [
-    {
-      "id": "fbdf5534-983f-403c-bdbb-00745d1c2ec9",
-      "uraian": "Pendapatan Asli Desa",
-      "dana": 50000000,
-      "periodId": "c89e3f77-84e9-4b48-ac47-e2c766408588",
-      "createdAt": "2024-10-30T12:06:22.194Z",
-      "updatedAt": "2024-10-30T12:06:22.194Z"
-    }
-  ],
-  "expenses": [
-    {
-      "id": "d01098b4-74bf-41eb-ac62-0f7ef49688c6",
-      "uraian": "Belanja Pegawai",
-      "dana": 25000000,
-      "periodId": "c89e3f77-84e9-4b48-ac47-e2c766408588",
-      "createdAt": "2024-10-30T12:06:22.194Z",
-      "updatedAt": "2024-10-30T12:06:22.194Z"
-    }
-  ],
-  "financings": [
-    {
-      "id": "fbebea6a-c28b-415a-bd80-b68807b37d32",
-      "uraian": "Penerimaan Pembiayaan",
-      "dana": 10000000,
-      "jenis": "PENERIMAAN",
-      "periodId": "c89e3f77-84e9-4b48-ac47-e2c766408588",
-      "createdAt": "2024-10-30T12:06:22.194Z",
-      "updatedAt": "2024-10-30T12:06:22.194Z"
-    }
-  ],
-  "summary": {
-    "jumlahPendapatan": 50000000,
-    "jumlahBelanja": 25000000,
-    "surplusDefisit": 25000000,
-    "pembiayaanNeto": 10000000
-  }
-}
 ```
 
 ### Get Period By Id
@@ -109,39 +57,39 @@ Authentication: Not Required
 Response Body (200 OK):
 ```json
 {
-  "id": "c89e3f77-84e9-4b48-ac47-e2c766408588",
+  "id": "039dad63-9313-48e6-bae2-f123ce84ed8a",
   "tahun": 2024,
-  "createdAt": "2024-10-30T12:06:22.194Z",
-  "updatedAt": "2024-10-30T12:06:22.194Z",
+  "createdAt": "2024-10-30T16:09:03.678Z",
+  "updatedAt": "2024-10-30T16:09:03.678Z",
   "incomes": [
     {
-      "id": "fbdf5534-983f-403c-bdbb-00745d1c2ec9",
+      "id": "f8e39062-ce56-4420-b3b5-ff936482e5eb",
       "uraian": "Pendapatan Asli Desa",
       "dana": 50000000,
-      "periodId": "c89e3f77-84e9-4b48-ac47-e2c766408588",
-      "createdAt": "2024-10-30T12:06:22.194Z",
-      "updatedAt": "2024-10-30T12:06:22.194Z"
+      "periodId": "039dad63-9313-48e6-bae2-f123ce84ed8a",
+      "createdAt": "2024-10-30T16:09:03.678Z",
+      "updatedAt": "2024-10-30T16:09:03.678Z"
     }
   ],
   "expenses": [
     {
-      "id": "d01098b4-74bf-41eb-ac62-0f7ef49688c6",
+      "id": "9d548cff-28bc-4ff6-8a5e-aeb4dcfb7623",
       "uraian": "Belanja Pegawai",
       "dana": 25000000,
-      "periodId": "c89e3f77-84e9-4b48-ac47-e2c766408588",
-      "createdAt": "2024-10-30T12:06:22.194Z",
-      "updatedAt": "2024-10-30T12:06:22.194Z"
+      "periodId": "039dad63-9313-48e6-bae2-f123ce84ed8a",
+      "createdAt": "2024-10-30T16:09:03.678Z",
+      "updatedAt": "2024-10-30T16:09:03.678Z"
     }
   ],
   "financings": [
     {
-      "id": "fbebea6a-c28b-415a-bd80-b68807b37d32",
+      "id": "6a6bfeb2-fea6-4f20-b78e-b89914c17370",
       "uraian": "Penerimaan Pembiayaan",
       "dana": 10000000,
       "jenis": "PENERIMAAN",
-      "periodId": "c89e3f77-84e9-4b48-ac47-e2c766408588",
-      "createdAt": "2024-10-30T12:06:22.194Z",
-      "updatedAt": "2024-10-30T12:06:22.194Z"
+      "periodId": "039dad63-9313-48e6-bae2-f123ce84ed8a",
+      "createdAt": "2024-10-30T16:09:03.678Z",
+      "updatedAt": "2024-10-30T16:09:03.678Z"
     }
   ],
   "summary": {
@@ -195,10 +143,10 @@ Request Body:
 Response Body (201 Created):
 ```json
 {
-  "id": "c89e3f77-84e9-4b48-ac47-e2c766408588",
+  "id": "039dad63-9313-48e6-bae2-f123ce84ed8a",
   "tahun": 2024,
-  "createdAt": "2024-10-30T12:06:22.194Z",
-  "updatedAt": "2024-10-30T12:06:22.194Z",
+  "createdAt": "2024-10-30T16:09:03.678Z",
+  "updatedAt": "2024-10-30T16:09:03.678Z",
   "incomes": [],
   "expenses": [],
   "financings": []
@@ -221,12 +169,12 @@ Request Body:
 Response Body (201 Created):
 ```json
 {
-  "id": "fbdf5534-983f-403c-bdbb-00745d1c2ec9",
+  "id": "f8e39062-ce56-4420-b3b5-ff936482e5eb",
   "uraian": "Pendapatan Asli Desa",
   "dana": 50000000,
-  "periodId": "c89e3f77-84e9-4b48-ac47-e2c766408588",
-  "createdAt": "2024-10-30T12:06:22.194Z",
-  "updatedAt": "2024-10-30T12:06:22.194Z"
+  "periodId": "039dad63-9313-48e6-bae2-f123ce84ed8a",
+  "createdAt": "2024-10-30T16:09:03.678Z",
+  "updatedAt": "2024-10-30T16:09:03.678Z"
 }
 ```
 
@@ -246,12 +194,12 @@ Request Body:
 Response Body (201 Created):
 ```json
 {
-  "id": "d01098b4-74bf-41eb-ac62-0f7ef49688c6",
+  "id": "9d548cff-28bc-4ff6-8a5e-aeb4dcfb7623",
   "uraian": "Belanja Pegawai",
   "dana": 25000000,
-  "periodId": "c89e3f77-84e9-4b48-ac47-e2c766408588",
-  "createdAt": "2024-10-30T12:06:22.194Z",
-  "updatedAt": "2024-10-30T12:06:22.194Z"
+  "periodId": "039dad63-9313-48e6-bae2-f123ce84ed8a",
+  "createdAt": "2024-10-30T16:09:03.678Z",
+  "updatedAt": "2024-10-30T16:09:03.678Z"
 }
 ```
 
@@ -272,13 +220,13 @@ Request Body:
 Response Body (201 Created):
 ```json
 {
-  "id": "fbebea6a-c28b-415a-bd80-b68807b37d32",
+  "id": "6a6bfeb2-fea6-4f20-b78e-b89914c17370",
   "uraian": "Penerimaan Pembiayaan",
   "dana": 10000000,
   "jenis": "PENERIMAAN",
-  "periodId": "c89e3f77-84e9-4b48-ac47-e2c766408588",
-  "createdAt": "2024-10-30T12:06:22.194Z",
-  "updatedAt": "2024-10-30T12:06:22.194Z"
+  "periodId": "039dad63-9313-48e6-bae2-f123ce84ed8a",
+  "createdAt": "2024-10-30T16:09:03.678Z",
+  "updatedAt": "2024-10-30T16:09:03.678Z"
 }
 ```
 
@@ -297,10 +245,10 @@ Request Body:
 Response Body (200 OK):
 ```json
 {
-  "id": "c89e3f77-84e9-4b48-ac47-e2c766408588",
+  "id": "039dad63-9313-48e6-bae2-f123ce84ed8a",
   "tahun": 2024,
-  "createdAt": "2024-10-30T12:06:22.194Z",
-  "updatedAt": "2024-10-30T12:06:22.194Z"
+  "createdAt": "2024-10-30T16:09:03.678Z",
+  "updatedAt": "2024-10-30T16:09:03.678Z"
 }
 ```
 
@@ -324,12 +272,12 @@ Request Body:
 Response Body (200 OK):
 ```json
 {
-  "id": "fbdf5534-983f-403c-bdbb-00745d1c2ec9",
+  "id": "f8e39062-ce56-4420-b3b5-ff936482e5eb",
   "uraian": "Pendapatan Asli Desa",
   "dana": 50000000,
-  "periodId": "c89e3f77-84e9-4b48-ac47-e2c766408588",
-  "createdAt": "2024-10-30T12:06:22.194Z",
-  "updatedAt": "2024-10-30T12:06:22.194Z"
+  "periodId": "039dad63-9313-48e6-bae2-f123ce84ed8a",
+  "createdAt": "2024-10-30T16:09:03.678Z",
+  "updatedAt": "2024-10-30T16:09:03.678Z"
 }
 ```
 
@@ -349,12 +297,12 @@ Request Body:
 Response Body (200 OK):
 ```json
 {
-  "id": "d01098b4-74bf-41eb-ac62-0f7ef49688c6",
+  "id": "9d548cff-28bc-4ff6-8a5e-aeb4dcfb7623",
   "uraian": "Belanja Pegawai",
   "dana": 25000000,
-  "periodId": "c89e3f77-84e9-4b48-ac47-e2c766408588",
-  "createdAt": "2024-10-30T12:06:22.194Z",
-  "updatedAt": "2024-10-30T12:06:22.194Z"
+  "periodId": "039dad63-9313-48e6-bae2-f123ce84ed8a",
+  "createdAt": "2024-10-30T16:09:03.678Z",
+  "updatedAt": "2024-10-30T16:09:03.678Z"
 }
 ```
 
@@ -375,13 +323,13 @@ Request Body:
 Response Body (200 OK):
 ```json
 {
-  "id": "fbebea6a-c28b-415a-bd80-b68807b37d32",
+  "id": "6a6bfeb2-fea6-4f20-b78e-b89914c17370",
   "uraian": "Penerimaan Pembiayaan",
   "dana": 10000000,
   "jenis": "PENERIMAAN",
-  "periodId": "c89e3f77-84e9-4b48-ac47-e2c766408588",
-  "createdAt": "2024-10-30T12:06:22.194Z",
-  "updatedAt": "2024-10-30T12:06:22.194Z"
+  "periodId": "039dad63-9313-48e6-bae2-f123ce84ed8a",
+  "createdAt": "2024-10-30T16:09:03.678Z",
+  "updatedAt": "2024-10-30T16:09:03.678Z"
 }
 ```
 
