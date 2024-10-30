@@ -108,6 +108,60 @@ enum Status {
 }
 
 
+// Finance models
+model FinancePeriod {
+  id          String   @id @default(uuid())
+  tahun       Int      @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  incomes     FinanceIncome[]
+  expenses    FinanceExpense[]
+  financings  FinanceFinancing[]
+}
+
+model FinanceIncome {
+  id          String   @id @default(uuid())
+  uraian      String   
+  dana        Decimal  @db.Decimal(15, 2)
+  periodId    String
+  period      FinancePeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([uraian, periodId])
+}
+
+model FinanceExpense {
+  id          String   @id @default(uuid())
+  uraian      String
+  dana        Decimal  @db.Decimal(15, 2)
+  periodId    String
+  period      FinancePeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([uraian, periodId])
+}
+
+model FinanceFinancing {
+  id          String   @id @default(uuid())
+  uraian      String
+  dana        Decimal  @db.Decimal(15, 2)
+  jenis       FinancingType
+  periodId    String
+  period      FinancePeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([uraian, periodId])
+}
+
+enum FinancingType {
+  PENERIMAAN
+  PENGELUARAN
+}
+
+// Keep existing banner and info models
 model FinanceBanner {
   id          String   @id @default(uuid())
   imageUrl    String?
@@ -121,34 +175,6 @@ model FinanceInfo {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
-
-model FinanceIncomeItem {
-  id            String   @id @default(uuid())
-  uraian        String   @unique
-  anggaran      Decimal  @db.Decimal(15, 2)
-  realisasi     Decimal  @db.Decimal(15, 2)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-}
-
-model FinanceExpenseItem {
-  id            String   @id @default(uuid())
-  uraian        String   @unique
-  anggaran      Decimal  @db.Decimal(15, 2)
-  realisasi     Decimal  @db.Decimal(15, 2)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-}
-
-model FinanceFinancingItem {
-  id            String   @id @default(uuid())
-  uraian        String   @unique
-  anggaran      Decimal  @db.Decimal(15, 2)
-  realisasi     Decimal  @db.Decimal(15, 2)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-}
-
 
 
 model BeritaKategori {

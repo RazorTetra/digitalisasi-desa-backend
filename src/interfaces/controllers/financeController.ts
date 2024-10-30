@@ -10,17 +10,296 @@ const financeRepository = new FinanceRepository();
 const financeUseCase = new FinanceUseCase(financeRepository);
 
 // Validation Schemas
-const financeInfoSchema = z.object({
-  content: z.string().min(1),
+const periodSchema = z.object({
+  tahun: z.number().int().min(2000).max(2100)
 });
 
 const financeItemSchema = z.object({
-  uraian: z.string().min(1),
-  anggaran: z.number().or(z.string()).transform(val => typeof val === 'string' ? parseFloat(val) : val),
-  realisasi: z.number().or(z.string()).transform(val => typeof val === 'string' ? parseFloat(val) : val),
+  uraian: z.string().min(1, 'Uraian wajib diisi'),
+  dana: z.number().or(
+    z.string().transform((val) => Number(val))
+  )
 });
 
-// Banner Controllers
+const financingItemSchema = financeItemSchema.extend({
+  jenis: z.enum(['PENERIMAAN', 'PENGELUARAN'])
+});
+
+// Period Controllers
+export const createPeriod = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const validatedData = periodSchema.parse(req.body);
+    const period = await financeUseCase.createPeriod(validatedData);
+    res.status(201).json(period);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ error: 'Invalid input', details: error.errors });
+      return;
+    }
+    next(error);
+  }
+};
+
+export const getAllPeriods = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const periods = await financeUseCase.getAllPeriods();
+    res.json(periods);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getPeriodById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const period = await financeUseCase.getPeriodById(id);
+    const summary = await financeUseCase.calculatePeriodSummary(id);
+    res.json({ ...period, summary });
+  } catch (error) {
+    if (error instanceof NotFoundError) {
+      res.status(404).json({ error: error.message });
+      return;
+    }
+    next(error);
+  }
+};
+
+export const getActivePeriod = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const period = await financeUseCase.getActivePeriod();
+    const summary = await financeUseCase.calculatePeriodSummary(period.id);
+    res.json({ ...period, summary });
+  } catch (error) {
+    if (error instanceof NotFoundError) {
+      res.status(404).json({ error: error.message });
+      return;
+    }
+    next(error);
+  }
+};
+
+
+export const updatePeriod = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const validatedData = periodSchema.parse(req.body);
+    const period = await financeUseCase.updatePeriod(id, validatedData.tahun);
+    res.json(period);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ error: 'Invalid input', details: error.errors });
+      return;
+    }
+    if (error instanceof NotFoundError) {
+      res.status(404).json({ error: error.message });
+      return;
+    }
+    if (error instanceof Error && error.message.includes('already exists')) {
+      res.status(409).json({ error: error.message });
+      return;
+    }
+    next(error);
+  }
+};
+
+export const deletePeriod = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    await financeUseCase.deletePeriod(id);
+    res.status(204).send();
+  } catch (error) {
+    if (error instanceof NotFoundError) {
+      res.status(404).json({ error: error.message });
+      return;
+    }
+    next(error);
+  }
+};
+
+// Income Controllers
+export const addIncome = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { periodId } = req.params;
+    const validatedData = financeItemSchema.parse(req.body);
+    const income = await financeUseCase.addIncome(periodId, validatedData);
+    res.status(201).json(income);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ error: 'Invalid input', details: error.errors });
+      return;
+    }
+    next(error);
+  }
+};
+
+export const updateIncome = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const validatedData = financeItemSchema.parse(req.body);
+    const income = await financeUseCase.updateIncome(id, validatedData);
+    res.json(income);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ error: 'Invalid input', details: error.errors });
+      return;
+    }
+    next(error);
+  }
+};
+
+export const deleteIncome = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    await financeUseCase.deleteIncome(id);
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Expense Controllers
+export const addExpense = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { periodId } = req.params;
+    const validatedData = financeItemSchema.parse(req.body);
+    const expense = await financeUseCase.addExpense(periodId, validatedData);
+    res.status(201).json(expense);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ error: 'Invalid input', details: error.errors });
+      return;
+    }
+    next(error);
+  }
+};
+
+export const updateExpense = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const validatedData = financeItemSchema.parse(req.body);
+    const expense = await financeUseCase.updateExpense(id, validatedData);
+    res.json(expense);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ error: 'Invalid input', details: error.errors });
+      return;
+    }
+    next(error);
+  }
+};
+
+export const deleteExpense = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    await financeUseCase.deleteExpense(id);
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Financing Controllers
+export const addFinancing = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { periodId } = req.params;
+    const validatedData = financingItemSchema.parse(req.body);
+    const financing = await financeUseCase.addFinancing(periodId, validatedData);
+    res.status(201).json(financing);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ error: 'Invalid input', details: error.errors });
+      return;
+    }
+    next(error);
+  }
+};
+
+export const updateFinancing = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const validatedData = financingItemSchema.parse(req.body);
+    const financing = await financeUseCase.updateFinancing(id, validatedData);
+    res.json(financing);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ error: 'Invalid input', details: error.errors });
+      return;
+    }
+    next(error);
+  }
+};
+
+export const deleteFinancing = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    await financeUseCase.deleteFinancing(id);
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Banner & Info Controllers (unchanged)
 export const getFinanceBanner = async (
   req: Request,
   res: Response,
@@ -47,7 +326,6 @@ export const updateFinanceBanner = async (
   }
 };
 
-// Info Controllers
 export const getFinanceInfo = async (
   req: Request,
   res: Response,
@@ -67,240 +345,9 @@ export const updateFinanceInfo = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const validatedData = financeInfoSchema.parse(req.body);
-    const info = await financeUseCase.updateFinanceInfo(validatedData.content);
+    const { content } = req.body;
+    const info = await financeUseCase.updateFinanceInfo(content);
     res.json(info);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      res.status(400).json({ error: 'Invalid input', details: error.errors });
-    } else {
-      next(error);
-    }
-  }
-};
-
-// Income Controllers
-export const getIncomeItems = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const items = await financeUseCase.getIncomeItems();
-    res.json(items);
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const createIncomeItem = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const validatedData = financeItemSchema.parse(req.body);
-    const item = await financeUseCase.createIncomeItem(validatedData);
-    res.status(201).json(item);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      res.status(400).json({ error: 'Invalid input', details: error.errors });
-    } else {
-      next(error);
-    }
-  }
-};
-
-export const updateIncomeItem = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const { id } = req.params;
-    const validatedData = financeItemSchema.parse(req.body);
-    const item = await financeUseCase.updateIncomeItem(id, validatedData);
-    res.json(item);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      res.status(400).json({ error: 'Invalid input', details: error.errors });
-    } else if (error instanceof NotFoundError) {
-      res.status(404).json({ error: error.message });
-    } else {
-      next(error);
-    }
-  }
-};
-
-export const deleteIncomeItem = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const { id } = req.params;
-    await financeUseCase.deleteIncomeItem(id);
-    res.status(204).send();
-  } catch (error) {
-    if (error instanceof NotFoundError) {
-      res.status(404).json({ error: error.message });
-    } else {
-      next(error);
-    }
-  }
-};
-
-// Expense Controllers
-export const getExpenseItems = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const items = await financeUseCase.getExpenseItems();
-    res.json(items);
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const createExpenseItem = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const validatedData = financeItemSchema.parse(req.body);
-    const item = await financeUseCase.createExpenseItem(validatedData);
-    res.status(201).json(item);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      res.status(400).json({ error: 'Invalid input', details: error.errors });
-    } else {
-      next(error);
-    }
-  }
-};
-
-export const updateExpenseItem = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const { id } = req.params;
-    const validatedData = financeItemSchema.parse(req.body);
-    const item = await financeUseCase.updateExpenseItem(id, validatedData);
-    res.json(item);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      res.status(400).json({ error: 'Invalid input', details: error.errors });
-    } else if (error instanceof NotFoundError) {
-      res.status(404).json({ error: error.message });
-    } else {
-      next(error);
-    }
-  }
-};
-
-export const deleteExpenseItem = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const { id } = req.params;
-    await financeUseCase.deleteExpenseItem(id);
-    res.status(204).send();
-  } catch (error) {
-    if (error instanceof NotFoundError) {
-      res.status(404).json({ error: error.message });
-    } else {
-      next(error);
-    }
-  }
-};
-
-// Financing Controllers
-export const getFinancingItems = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const items = await financeUseCase.getFinancingItems();
-    res.json(items);
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const createFinancingItem = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const validatedData = financeItemSchema.parse(req.body);
-    const item = await financeUseCase.createFinancingItem(validatedData);
-    res.status(201).json(item);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      res.status(400).json({ error: 'Invalid input', details: error.errors });
-    } else {
-      next(error);
-    }
-  }
-};
-
-export const updateFinancingItem = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const { id } = req.params;
-    const validatedData = financeItemSchema.parse(req.body);
-    const item = await financeUseCase.updateFinancingItem(id, validatedData);
-    res.json(item);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      res.status(400).json({ error: 'Invalid input', details: error.errors });
-    } else if (error instanceof NotFoundError) {
-      res.status(404).json({ error: error.message });
-    } else {
-      next(error);
-    }
-  }
-};
-
-export const deleteFinancingItem = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const { id } = req.params;
-    await financeUseCase.deleteFinancingItem(id);
-    res.status(204).send();
-  } catch (error) {
-    if (error instanceof NotFoundError) {
-      res.status(404).json({ error: error.message });
-    } else {
-      next(error);
-    }
-  }
-};
-
-// Summary Controller
-export const getFinanceSummary = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const summary = await financeUseCase.getFinanceSummary();
-    res.json(summary);
   } catch (error) {
     next(error);
   }

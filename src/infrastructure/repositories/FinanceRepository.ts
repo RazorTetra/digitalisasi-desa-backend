@@ -2,18 +2,179 @@
 
 import {
   PrismaClient,
+  FinancePeriod,
+  FinanceIncome,
+  FinanceExpense,
+  FinanceFinancing,
+  Prisma,
   FinanceBanner,
   FinanceInfo,
-  FinanceIncomeItem,
-  FinanceExpenseItem,
-  FinanceFinancingItem,
-  Prisma,
 } from "@prisma/client";
+import { FinancePeriodWithDetails } from "../../types/finance";
 
 const prisma = new PrismaClient();
 
 export class FinanceRepository {
-  // Banner Methods
+  // Period Methods
+  async findAllPeriods(): Promise<FinancePeriod[]> {
+    return prisma.financePeriod.findMany({
+      orderBy: { tahun: "desc" },
+      include: {
+        incomes: true,
+        expenses: true,
+        financings: true,
+      },
+    });
+  }
+
+  async findPeriodById(id: string): Promise<FinancePeriodWithDetails | null> {
+    return prisma.financePeriod.findUnique({
+      where: { id },
+      include: {
+        incomes: true,
+        expenses: true,
+        financings: true,
+      },
+    });
+  }
+
+  async findPeriodByYear(tahun: number): Promise<
+    | (FinancePeriod & {
+        incomes: FinanceIncome[];
+        expenses: FinanceExpense[];
+        financings: FinanceFinancing[];
+      })
+    | null
+  > {
+    return prisma.financePeriod.findUnique({
+      where: { tahun },
+      include: {
+        incomes: true,
+        expenses: true,
+        financings: true,
+      },
+    });
+  }
+
+  async findActivePeriod(): Promise<
+    | (FinancePeriod & {
+        incomes: FinanceIncome[];
+        expenses: FinanceExpense[];
+        financings: FinanceFinancing[];
+      })
+    | null
+  > {
+    return prisma.financePeriod.findFirst({
+      where: { isActive: true },
+      include: {
+        incomes: true,
+        expenses: true,
+        financings: true,
+      },
+    });
+  }
+
+  async createPeriod(tahun: number): Promise<FinancePeriod> {
+    return prisma.financePeriod.create({
+      data: { tahun },
+      include: {
+        incomes: true,
+        expenses: true,
+        financings: true,
+      },
+    });
+  }
+
+  async updatePeriod(id: string, tahun: number): Promise<FinancePeriod> {
+    return prisma.financePeriod.update({
+      where: { id },
+      data: { tahun },
+      include: {
+        incomes: true,
+        expenses: true,
+        financings: true,
+      },
+    });
+  }
+
+  async deletePeriod(id: string): Promise<void> {
+    // Prisma akan otomatis menghapus semua records yang terkait
+    // karena kita sudah setting onDelete: Cascade di schema
+    await prisma.financePeriod.delete({
+      where: { id },
+    });
+  }
+
+  // Income Methods
+  async createIncome(
+    data: Prisma.FinanceIncomeCreateInput
+  ): Promise<FinanceIncome> {
+    return prisma.financeIncome.create({ data });
+  }
+
+  async updateIncome(
+    id: string,
+    data: Prisma.FinanceIncomeUpdateInput
+  ): Promise<FinanceIncome> {
+    return prisma.financeIncome.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async deleteIncome(id: string): Promise<void> {
+    await prisma.financeIncome.delete({
+      where: { id },
+    });
+  }
+
+  // Expense Methods
+  async createExpense(
+    data: Prisma.FinanceExpenseCreateInput
+  ): Promise<FinanceExpense> {
+    return prisma.financeExpense.create({ data });
+  }
+
+  async updateExpense(
+    id: string,
+    data: Prisma.FinanceExpenseUpdateInput
+  ): Promise<FinanceExpense> {
+    return prisma.financeExpense.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async deleteExpense(id: string): Promise<void> {
+    await prisma.financeExpense.delete({
+      where: { id },
+    });
+  }
+
+  // Financing Methods
+  async createFinancing(
+    data: Prisma.FinanceFinancingCreateInput
+  ): Promise<FinanceFinancing> {
+    return prisma.financeFinancing.create({ data });
+  }
+
+  async updateFinancing(
+    id: string,
+    data: Prisma.FinanceFinancingUpdateInput
+  ): Promise<FinanceFinancing> {
+    return prisma.financeFinancing.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async deleteFinancing(id: string): Promise<void> {
+    await prisma.financeFinancing.delete({
+      where: { id },
+    });
+  }
+
+  // Banner Methods (unchanged)
   async getFinanceBanner(): Promise<FinanceBanner | null> {
     return prisma.financeBanner.findFirst();
   }
@@ -25,20 +186,13 @@ export class FinanceRepository {
     if (banner) {
       return prisma.financeBanner.update({
         where: { id: banner.id },
-        data: {
-          imageUrl: data.imageUrl,
-          updatedAt: new Date(),
-        },
+        data,
       });
     }
-    return prisma.financeBanner.create({
-      data: {
-        imageUrl: data.imageUrl,
-      },
-    });
+    return prisma.financeBanner.create({ data });
   }
 
-  // Info Methods
+  // Info Methods (unchanged)
   async getFinanceInfo(): Promise<FinanceInfo | null> {
     return prisma.financeInfo.findFirst();
   }
@@ -48,121 +202,9 @@ export class FinanceRepository {
     if (info) {
       return prisma.financeInfo.update({
         where: { id: info.id },
-        data: {
-          content: data.content,
-          updatedAt: new Date(),
-        },
+        data,
       });
     }
-    return prisma.financeInfo.create({
-      data: {
-        content: data.content,
-      },
-    });
-  }
-
-  // Income Methods
-  async getIncomeItems(): Promise<FinanceIncomeItem[]> {
-    return prisma.financeIncomeItem.findMany({
-      orderBy: { createdAt: "asc" },
-    });
-  }
-
-  async getIncomeItemById(id: string): Promise<FinanceIncomeItem | null> {
-    return prisma.financeIncomeItem.findUnique({
-      where: { id },
-    });
-  }
-
-  async createIncomeItem(
-    data: Prisma.FinanceIncomeItemCreateInput
-  ): Promise<FinanceIncomeItem> {
-    return prisma.financeIncomeItem.create({ data });
-  }
-
-  async updateIncomeItem(
-    id: string,
-    data: Prisma.FinanceIncomeItemUpdateInput
-  ): Promise<FinanceIncomeItem> {
-    return prisma.financeIncomeItem.update({
-      where: { id },
-      data,
-    });
-  }
-
-  async deleteIncomeItem(id: string): Promise<void> {
-    await prisma.financeIncomeItem.delete({
-      where: { id },
-    });
-  }
-
-  // Expense Methods
-  async getExpenseItems(): Promise<FinanceExpenseItem[]> {
-    return prisma.financeExpenseItem.findMany({
-      orderBy: { createdAt: "asc" },
-    });
-  }
-
-  async getExpenseItemById(id: string): Promise<FinanceExpenseItem | null> {
-    return prisma.financeExpenseItem.findUnique({
-      where: { id },
-    });
-  }
-
-  async createExpenseItem(
-    data: Prisma.FinanceExpenseItemCreateInput
-  ): Promise<FinanceExpenseItem> {
-    return prisma.financeExpenseItem.create({ data });
-  }
-
-  async updateExpenseItem(
-    id: string,
-    data: Prisma.FinanceExpenseItemUpdateInput
-  ): Promise<FinanceExpenseItem> {
-    return prisma.financeExpenseItem.update({
-      where: { id },
-      data,
-    });
-  }
-
-  async deleteExpenseItem(id: string): Promise<void> {
-    await prisma.financeExpenseItem.delete({
-      where: { id },
-    });
-  }
-
-  // Financing Methods
-  async getFinancingItems(): Promise<FinanceFinancingItem[]> {
-    return prisma.financeFinancingItem.findMany({
-      orderBy: { createdAt: "asc" },
-    });
-  }
-
-  async getFinancingItemById(id: string): Promise<FinanceFinancingItem | null> {
-    return prisma.financeFinancingItem.findUnique({
-      where: { id },
-    });
-  }
-
-  async createFinancingItem(
-    data: Prisma.FinanceFinancingItemCreateInput
-  ): Promise<FinanceFinancingItem> {
-    return prisma.financeFinancingItem.create({ data });
-  }
-
-  async updateFinancingItem(
-    id: string,
-    data: Prisma.FinanceFinancingItemUpdateInput
-  ): Promise<FinanceFinancingItem> {
-    return prisma.financeFinancingItem.update({
-      where: { id },
-      data,
-    });
-  }
-
-  async deleteFinancingItem(id: string): Promise<void> {
-    await prisma.financeFinancingItem.delete({
-      where: { id },
-    });
+    return prisma.financeInfo.create({ data });
   }
 }

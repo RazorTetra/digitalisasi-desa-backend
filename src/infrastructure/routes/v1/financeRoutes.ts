@@ -1,64 +1,117 @@
 // src/infrastructure/routes/v1/financeRoutes.ts
 
-import express from 'express';
-import multer from 'multer';
-import { 
+import express from "express";
+import multer from "multer";
+import { authMiddleware } from "../../middlewares/authMiddleware";
+import { adminMiddleware } from "../../middlewares/adminMiddleware";
+import {
+  // Period endpoints
+  createPeriod,
+  getAllPeriods,
+  getPeriodById,
+  getActivePeriod,
+
+  // Income endpoints
+  addIncome,
+  updateIncome,
+  deleteIncome,
+
+  // Expense endpoints
+  addExpense,
+  updateExpense,
+  deleteExpense,
+
+  // Financing endpoints
+  addFinancing,
+  updateFinancing,
+  deleteFinancing,
+
+  // Banner & Info endpoints
   getFinanceBanner,
   updateFinanceBanner,
   getFinanceInfo,
   updateFinanceInfo,
-  getIncomeItems,
-  createIncomeItem,
-  updateIncomeItem,
-  deleteIncomeItem,
-  getExpenseItems,
-  createExpenseItem,
-  updateExpenseItem,
-  deleteExpenseItem,
-  getFinancingItems,
-  createFinancingItem,
-  updateFinancingItem,
-  deleteFinancingItem,
-  getFinanceSummary,
-} from '../../../interfaces/controllers/financeController';
-import { authMiddleware } from '../../middlewares/authMiddleware';
-import { adminMiddleware } from '../../middlewares/adminMiddleware';
+  updatePeriod,
+  deletePeriod,
+} from "../../../interfaces/controllers/financeController";
 
 const router = express.Router();
 
 // Configure multer for banner upload
-const upload = multer({ 
+const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
-  }
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
 });
 
 // Public routes
-router.get('/banner', getFinanceBanner);
-router.get('/info', getFinanceInfo);
-router.get('/income', getIncomeItems);
-router.get('/expense', getExpenseItems);
-router.get('/financing', getFinancingItems);
-router.get('/summary', getFinanceSummary);
+router.get("/banner", getFinanceBanner);
+router.get("/info", getFinanceInfo);
+router.get("/periods", getAllPeriods);
+router.get("/periods/active", getActivePeriod);
+router.get("/periods/:id", getPeriodById);
 
 // Protected routes (admin only)
-router.put('/banner', authMiddleware, adminMiddleware, upload.single('file'), updateFinanceBanner);
-router.put('/info', authMiddleware, adminMiddleware, updateFinanceInfo);
+router.post("/periods", authMiddleware, adminMiddleware, createPeriod);
 
 // Income routes
-router.post('/income', authMiddleware, adminMiddleware, createIncomeItem);
-router.put('/income/:id', authMiddleware, adminMiddleware, updateIncomeItem);
-router.delete('/income/:id', authMiddleware, adminMiddleware, deleteIncomeItem);
+router.post(
+  "/periods/:periodId/income",
+  authMiddleware,
+  adminMiddleware,
+  addIncome
+);
+router.put("/income/:id", authMiddleware, adminMiddleware, updateIncome);
+router.delete("/income/:id", authMiddleware, adminMiddleware, deleteIncome);
 
 // Expense routes
-router.post('/expense', authMiddleware, adminMiddleware, createExpenseItem);
-router.put('/expense/:id', authMiddleware, adminMiddleware, updateExpenseItem);
-router.delete('/expense/:id', authMiddleware, adminMiddleware, deleteExpenseItem);
+router.post(
+  "/periods/:periodId/expense",
+  authMiddleware,
+  adminMiddleware,
+  addExpense
+);
+router.put(
+  "/periods/:id",
+  authMiddleware,
+  adminMiddleware,
+  updatePeriod
+);
+
+router.delete(
+  "/periods/:id",
+  authMiddleware,
+  adminMiddleware,
+  deletePeriod
+);
+
+router.put("/expense/:id", authMiddleware, adminMiddleware, updateExpense);
+router.delete("/expense/:id", authMiddleware, adminMiddleware, deleteExpense);
 
 // Financing routes
-router.post('/financing', authMiddleware, adminMiddleware, createFinancingItem);
-router.put('/financing/:id', authMiddleware, adminMiddleware, updateFinancingItem);
-router.delete('/financing/:id', authMiddleware, adminMiddleware, deleteFinancingItem);
+router.post(
+  "/periods/:periodId/financing",
+  authMiddleware,
+  adminMiddleware,
+  addFinancing
+);
+router.put("/financing/:id", authMiddleware, adminMiddleware, updateFinancing);
+router.delete(
+  "/financing/:id",
+  authMiddleware,
+  adminMiddleware,
+  deleteFinancing
+);
+
+// Banner & Info routes
+router.put(
+  "/banner",
+  authMiddleware,
+  adminMiddleware,
+  upload.single("file"),
+  updateFinanceBanner
+);
+router.put("/info", authMiddleware, adminMiddleware, updateFinanceInfo);
 
 export { router as financeRouter };

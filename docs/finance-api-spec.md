@@ -1,114 +1,154 @@
-# Finance API Specification
+# Finance Management API Specification
 
 ## Public Endpoints
 
 ### Get Finance Banner
 Endpoint: GET /api/v1/finance/banner
+Description: Mendapatkan banner keuangan
 Authentication: Not Required
 
-Response Body (Success - 200 OK):
+Response Body (200 OK):
 ```json
 {
-  "id": "90c15f97-c670-4d17-aae9-f0018df2c39a",
-  "imageUrl": "https://cloudinary.com/example.jpg",
-  "createdAt": "2024-10-24T10:34:07.474Z",
-  "updatedAt": "2024-10-24T10:34:07.475Z"
+  "id": "a9a43a35-7d77-4b7b-8ee8-e6bb3feb78c2",
+  "imageUrl": "https://example.com/banner.jpg",
+  "createdAt": "2024-10-30T12:06:22.193Z",
+  "updatedAt": "2024-10-30T12:06:22.194Z"
 }
 ```
 
 ### Get Finance Info
 Endpoint: GET /api/v1/finance/info
+Description: Mendapatkan informasi dasar keuangan
 Authentication: Not Required
 
-Response Body (Success - 200 OK):
+Response Body (200 OK):
 ```json
 {
-  "id": "3a4fab6c-70c7-4ec1-9cca-a152a5d58094",
-  "content": "Informasi keuangan desa akan ditampilkan di sini",
-  "createdAt": "2024-10-24T10:34:07.475Z",
-  "updatedAt": "2024-10-24T10:34:07.475Z"
+  "id": "af7489ac-112d-42e6-ae21-1f2b44c41162",
+  "content": "Informasi keuangan desa",
+  "createdAt": "2024-10-30T12:06:22.194Z",
+  "updatedAt": "2024-10-30T12:06:22.194Z"
 }
 ```
 
-### Get Income Items
-Endpoint: GET /api/v1/finance/income
+### Get All Periods
+Endpoint: GET /api/v1/finance/periods
+Description: Mendapatkan daftar semua periode keuangan
 Authentication: Not Required
 
-Response Body (Success - 200 OK):
+Response Body (200 OK):
 ```json
 [
   {
-    "id": "2ee3bc7b-26fc-4236-bd4b-c2827c57272f",
-    "uraian": "DANA DESA",
-    "anggaran": 781754000,
-    "realisasi": 781754000,
-    "createdAt": "2024-10-24T10:34:07.475Z",
-    "updatedAt": "2024-10-24T10:34:07.475Z"
+    "id": "c89e3f77-84e9-4b48-ac47-e2c766408588",
+    "tahun": 2024,
+    "createdAt": "2024-10-30T12:06:22.194Z",
+    "updatedAt": "2024-10-30T12:06:22.194Z"
   }
 ]
 ```
 
-### Get Expense Items
-Endpoint: GET /api/v1/finance/expense
+### Get Latest Period
+Endpoint: GET /api/v1/finance/periods/latest
+Description: Mendapatkan periode terbaru dengan ringkasan keuangan
 Authentication: Not Required
 
-Response Body (Success - 200 OK):
-```json
-[
-  {
-    "id": "ee55406a-3862-4f66-bcf8-3b7073f22942",
-    "uraian": "BIDANG PENYELENGGARAAN PEMERINTAH DESA",
-    "anggaran": 401501414,
-    "realisasi": 401806138,
-    "createdAt": "2024-10-24T10:34:07.475Z",
-    "updatedAt": "2024-10-24T10:34:07.475Z"
-  }
-]
-```
-
-### Get Financing Items
-Endpoint: GET /api/v1/finance/financing
-Authentication: Not Required
-
-Response Body (Success - 200 OK):
-```json
-[
-  {
-    "id": "e0f75151-52ee-4bf7-815e-b8e956ea2ac5",
-    "uraian": "PENERIMAAN PEMBIAYAAN",
-    "anggaran": 237734,
-    "realisasi": 237734,
-    "createdAt": "2024-10-24T10:34:07.475Z",
-    "updatedAt": "2024-10-24T10:34:07.475Z"
-  }
-]
-```
-
-### Get Finance Summary
-Endpoint: GET /api/v1/finance/summary
-Authentication: Not Required
-
-Response Body (Success - 200 OK):
+Response Body (200 OK):
 ```json
 {
-  "totalPendapatan": {
-    "anggaran": 1152830600,
-    "realisasi": 1151420600,
-    "sisa": 861463
-  },
-  "totalBelanja": {
-    "anggaran": 1138068334,
-    "realisasi": 1136963058,
-    "sisa": 1105276,
-    "jumlahPendapatan": 1151420600,
-    "surplusDefisit": -14762266
-  },
-  "totalPembiayaan": {
-    "anggaran": 15237734,
-    "realisasi": 15237734,
-    "sisa": 0,
-    "pembiayaanNetto": -14762266,
-    "sisaLebihPembiayaanAnggaran": 0
+  "id": "c89e3f77-84e9-4b48-ac47-e2c766408588",
+  "tahun": 2024,
+  "createdAt": "2024-10-30T12:06:22.194Z",
+  "updatedAt": "2024-10-30T12:06:22.194Z",
+  "incomes": [
+    {
+      "id": "fbdf5534-983f-403c-bdbb-00745d1c2ec9",
+      "uraian": "Pendapatan Asli Desa",
+      "dana": 50000000,
+      "periodId": "c89e3f77-84e9-4b48-ac47-e2c766408588",
+      "createdAt": "2024-10-30T12:06:22.194Z",
+      "updatedAt": "2024-10-30T12:06:22.194Z"
+    }
+  ],
+  "expenses": [
+    {
+      "id": "d01098b4-74bf-41eb-ac62-0f7ef49688c6",
+      "uraian": "Belanja Pegawai",
+      "dana": 25000000,
+      "periodId": "c89e3f77-84e9-4b48-ac47-e2c766408588",
+      "createdAt": "2024-10-30T12:06:22.194Z",
+      "updatedAt": "2024-10-30T12:06:22.194Z"
+    }
+  ],
+  "financings": [
+    {
+      "id": "fbebea6a-c28b-415a-bd80-b68807b37d32",
+      "uraian": "Penerimaan Pembiayaan",
+      "dana": 10000000,
+      "jenis": "PENERIMAAN",
+      "periodId": "c89e3f77-84e9-4b48-ac47-e2c766408588",
+      "createdAt": "2024-10-30T12:06:22.194Z",
+      "updatedAt": "2024-10-30T12:06:22.194Z"
+    }
+  ],
+  "summary": {
+    "jumlahPendapatan": 50000000,
+    "jumlahBelanja": 25000000,
+    "surplusDefisit": 25000000,
+    "pembiayaanNeto": 10000000
+  }
+}
+```
+
+### Get Period By Id
+Endpoint: GET /api/v1/finance/periods/:id
+Description: Mendapatkan detail periode keuangan dengan ringkasan
+Authentication: Not Required
+
+Response Body (200 OK):
+```json
+{
+  "id": "c89e3f77-84e9-4b48-ac47-e2c766408588",
+  "tahun": 2024,
+  "createdAt": "2024-10-30T12:06:22.194Z",
+  "updatedAt": "2024-10-30T12:06:22.194Z",
+  "incomes": [
+    {
+      "id": "fbdf5534-983f-403c-bdbb-00745d1c2ec9",
+      "uraian": "Pendapatan Asli Desa",
+      "dana": 50000000,
+      "periodId": "c89e3f77-84e9-4b48-ac47-e2c766408588",
+      "createdAt": "2024-10-30T12:06:22.194Z",
+      "updatedAt": "2024-10-30T12:06:22.194Z"
+    }
+  ],
+  "expenses": [
+    {
+      "id": "d01098b4-74bf-41eb-ac62-0f7ef49688c6",
+      "uraian": "Belanja Pegawai",
+      "dana": 25000000,
+      "periodId": "c89e3f77-84e9-4b48-ac47-e2c766408588",
+      "createdAt": "2024-10-30T12:06:22.194Z",
+      "updatedAt": "2024-10-30T12:06:22.194Z"
+    }
+  ],
+  "financings": [
+    {
+      "id": "fbebea6a-c28b-415a-bd80-b68807b37d32",
+      "uraian": "Penerimaan Pembiayaan",
+      "dana": 10000000,
+      "jenis": "PENERIMAAN",
+      "periodId": "c89e3f77-84e9-4b48-ac47-e2c766408588",
+      "createdAt": "2024-10-30T12:06:22.194Z",
+      "updatedAt": "2024-10-30T12:06:22.194Z"
+    }
+  ],
+  "summary": {
+    "jumlahPendapatan": 50000000,
+    "jumlahBelanja": 25000000,
+    "surplusDefisit": 25000000,
+    "pembiayaanNeto": 10000000
   }
 }
 ```
@@ -118,177 +158,264 @@ All admin endpoints require authentication and admin role.
 
 ### Update Finance Banner
 Endpoint: PUT /api/v1/finance/banner
+Description: Mengubah banner keuangan
 Authentication: Required (Admin)
-Content-Type: multipart/form-data
 
-Request Body:
-```
-file: File (image)
-```
+Request Body: multipart/form-data
+- file: Image file (jpg, png, webp)
 
-Response Body (Success - 200 OK):
-```json
-{
-  "id": "90c15f97-c670-4d17-aae9-f0018df2c39a",
-  "imageUrl": "https://cloudinary.com/example.jpg",
-  "createdAt": "2024-10-24T10:34:07.474Z",
-  "updatedAt": "2024-10-24T10:34:07.475Z"
-}
-```
+Response: Same as Get Finance Banner
 
 ### Update Finance Info
 Endpoint: PUT /api/v1/finance/info
+Description: Mengubah informasi dasar keuangan
 Authentication: Required (Admin)
 
 Request Body:
 ```json
 {
-  "content": "Informasi keuangan desa terbaru"
+  "content": "Informasi keuangan desa"
 }
 ```
 
-Response Body (Success - 200 OK):
-```json
-{
-  "id": "3a4fab6c-70c7-4ec1-9cca-a152a5d58094",
-  "content": "Informasi keuangan desa akan ditampilkan di sini",
-  "createdAt": "2024-10-24T10:34:07.475Z",
-  "updatedAt": "2024-10-24T10:34:07.475Z"
-}
-```
+Response: Same as Get Finance Info
 
-### Create Income Item
-Endpoint: POST /api/v1/finance/income
+### Create Period
+Endpoint: POST /api/v1/finance/periods
+Description: Membuat periode keuangan baru
 Authentication: Required (Admin)
 
 Request Body:
 ```json
 {
-  "uraian": "DANA DESA",
-  "anggaran": 781754000,
-  "realisasi": 781754000
+  "tahun": 2024
 }
 ```
 
-### Update Income Item
+Response Body (201 Created):
+```json
+{
+  "id": "c89e3f77-84e9-4b48-ac47-e2c766408588",
+  "tahun": 2024,
+  "createdAt": "2024-10-30T12:06:22.194Z",
+  "updatedAt": "2024-10-30T12:06:22.194Z",
+  "incomes": [],
+  "expenses": [],
+  "financings": []
+}
+```
+
+### Add Income
+Endpoint: POST /api/v1/finance/periods/:periodId/income
+Description: Menambah item pendapatan
+Authentication: Required (Admin)
+
+Request Body:
+```json
+{
+  "uraian": "Pendapatan Asli Desa",
+  "dana": 50000000
+}
+```
+
+Response Body (201 Created):
+```json
+{
+  "id": "fbdf5534-983f-403c-bdbb-00745d1c2ec9",
+  "uraian": "Pendapatan Asli Desa",
+  "dana": 50000000,
+  "periodId": "c89e3f77-84e9-4b48-ac47-e2c766408588",
+  "createdAt": "2024-10-30T12:06:22.194Z",
+  "updatedAt": "2024-10-30T12:06:22.194Z"
+}
+```
+
+### Add Expense
+Endpoint: POST /api/v1/finance/periods/:periodId/expense
+Description: Menambah item belanja
+Authentication: Required (Admin)
+
+Request Body:
+```json
+{
+  "uraian": "Belanja Pegawai",
+  "dana": 25000000
+}
+```
+
+Response Body (201 Created):
+```json
+{
+  "id": "d01098b4-74bf-41eb-ac62-0f7ef49688c6",
+  "uraian": "Belanja Pegawai",
+  "dana": 25000000,
+  "periodId": "c89e3f77-84e9-4b48-ac47-e2c766408588",
+  "createdAt": "2024-10-30T12:06:22.194Z",
+  "updatedAt": "2024-10-30T12:06:22.194Z"
+}
+```
+
+### Add Financing
+Endpoint: POST /api/v1/finance/periods/:periodId/financing
+Description: Menambah item pembiayaan
+Authentication: Required (Admin)
+
+Request Body:
+```json
+{
+  "uraian": "Penerimaan Pembiayaan",
+  "dana": 10000000,
+  "jenis": "PENERIMAAN"
+}
+```
+
+Response Body (201 Created):
+```json
+{
+  "id": "fbebea6a-c28b-415a-bd80-b68807b37d32",
+  "uraian": "Penerimaan Pembiayaan",
+  "dana": 10000000,
+  "jenis": "PENERIMAAN",
+  "periodId": "c89e3f77-84e9-4b48-ac47-e2c766408588",
+  "createdAt": "2024-10-30T12:06:22.194Z",
+  "updatedAt": "2024-10-30T12:06:22.194Z"
+}
+```
+
+### Update Period
+Endpoint: PUT /api/v1/finance/periods/:id
+Description: Mengubah tahun periode
+Authentication: Required (Admin)
+
+Request Body:
+```json
+{
+  "tahun": 2024
+}
+```
+
+Response Body (200 OK):
+```json
+{
+  "id": "c89e3f77-84e9-4b48-ac47-e2c766408588",
+  "tahun": 2024,
+  "createdAt": "2024-10-30T12:06:22.194Z",
+  "updatedAt": "2024-10-30T12:06:22.194Z"
+}
+```
+
+Error Responses:
+- 404 Not Found: Period tidak ditemukan
+- 409 Conflict: Tahun periode sudah ada
+
+### Update Income
 Endpoint: PUT /api/v1/finance/income/:id
+Description: Mengubah item pendapatan
 Authentication: Required (Admin)
 
 Request Body:
 ```json
 {
-  "uraian": "DANA DESA",
-  "anggaran": 781754000,
-  "realisasi": 781754000
+  "uraian": "Pendapatan Asli Desa",
+  "dana": 50000000
 }
 ```
 
-### Delete Income Item
-Endpoint: DELETE /api/v1/finance/income/:id
-Authentication: Required (Admin)
-
-Response: 204 No Content
-
-### Create Expense Item
-Endpoint: POST /api/v1/finance/expense
-Authentication: Required (Admin)
-
-Request Body:
+Response Body (200 OK):
 ```json
 {
-  "uraian": "BIDANG PENYELENGGARAAN PEMERINTAH DESA",
-  "anggaran": 401501414,
-  "realisasi": 401806138
+  "id": "fbdf5534-983f-403c-bdbb-00745d1c2ec9",
+  "uraian": "Pendapatan Asli Desa",
+  "dana": 50000000,
+  "periodId": "c89e3f77-84e9-4b48-ac47-e2c766408588",
+  "createdAt": "2024-10-30T12:06:22.194Z",
+  "updatedAt": "2024-10-30T12:06:22.194Z"
 }
 ```
 
-### Update Expense Item
+### Update Expense
 Endpoint: PUT /api/v1/finance/expense/:id
+Description: Mengubah item belanja
 Authentication: Required (Admin)
 
 Request Body:
 ```json
 {
-  "uraian": "BIDANG PENYELENGGARAAN PEMERINTAH DESA",
-  "anggaran": 401501414,
-  "realisasi": 401806138
+  "uraian": "Belanja Pegawai",
+  "dana": 25000000
 }
 ```
 
-### Delete Expense Item
-Endpoint: DELETE /api/v1/finance/expense/:id
-Authentication: Required (Admin)
-
-Response: 204 No Content
-
-### Create Financing Item
-Endpoint: POST /api/v1/finance/financing
-Authentication: Required (Admin)
-
-Request Body:
+Response Body (200 OK):
 ```json
 {
-  "uraian": "PENERIMAAN PEMBIAYAAN",
-  "anggaran": 237734,
-  "realisasi": 237734
+  "id": "d01098b4-74bf-41eb-ac62-0f7ef49688c6",
+  "uraian": "Belanja Pegawai",
+  "dana": 25000000,
+  "periodId": "c89e3f77-84e9-4b48-ac47-e2c766408588",
+  "createdAt": "2024-10-30T12:06:22.194Z",
+  "updatedAt": "2024-10-30T12:06:22.194Z"
 }
 ```
 
-### Update Financing Item
+### Update Financing
 Endpoint: PUT /api/v1/finance/financing/:id
+Description: Mengubah item pembiayaan
 Authentication: Required (Admin)
 
 Request Body:
 ```json
 {
-  "uraian": "PENERIMAAN PEMBIAYAAN",
-  "anggaran": 237734,
-  "realisasi": 237734
+  "uraian": "Penerimaan Pembiayaan",
+  "dana": 10000000,
+  "jenis": "PENERIMAAN"
 }
 ```
 
-### Delete Financing Item
-Endpoint: DELETE /api/v1/finance/financing/:id
+Response Body (200 OK):
+```json
+{
+  "id": "fbebea6a-c28b-415a-bd80-b68807b37d32",
+  "uraian": "Penerimaan Pembiayaan",
+  "dana": 10000000,
+  "jenis": "PENERIMAAN",
+  "periodId": "c89e3f77-84e9-4b48-ac47-e2c766408588",
+  "createdAt": "2024-10-30T12:06:22.194Z",
+  "updatedAt": "2024-10-30T12:06:22.194Z"
+}
+```
+
+### Delete Period
+Endpoint: DELETE /api/v1/finance/periods/:id
+Description: Menghapus periode beserta semua data terkait (cascade delete)
 Authentication: Required (Admin)
 
 Response: 204 No Content
 
-## Error Responses
+Error Responses:
+- 404 Not Found: Period tidak ditemukan
 
-### Validation Error (400 Bad Request)
-```json
-{
-  "error": "Invalid input",
-  "details": [
-    {
-      "message": "Uraian tidak boleh kosong"
-    },
-    {
-      "message": "Anggaran harus berupa angka"
-    }
-  ]
-}
-```
+### Delete Income
+Endpoint: DELETE /api/v1/finance/income/:id
+Description: Menghapus item pendapatan
+Authentication: Required (Admin)
 
-### Not Found Error (404 Not Found)
-```json
-{
-  "error": "Item not found"
-}
-```
+Response: 204 No Content
 
-### Authentication Error (401 Unauthorized)
-```json
-{
-  "error": "Access token not found",
-  "code": "TOKEN_MISSING"
-}
-```
+### Delete Expense
+Endpoint: DELETE /api/v1/finance/expense/:id
+Description: Menghapus item belanja
+Authentication: Required (Admin)
 
-### Permission Error (403 Forbidden)
-```json
-{
-  "error": "Access denied. Admin privileges required."
-}
-```
+Response: 204 No Content
+
+### Delete Financing
+Endpoint: DELETE /api/v1/finance/financing/:id
+Description: Menghapus item pembiayaan
+Authentication: Required (Admin)
+
+Response: 204 No Content
+
+Error Responses:
+- 404 Not Found: Item tidak ditemukan
 
