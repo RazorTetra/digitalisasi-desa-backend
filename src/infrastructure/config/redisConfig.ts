@@ -1,74 +1,80 @@
 // src/infrastructure/config/redisConfig.ts
 
-import Redis from 'ioredis';
+import { createClient, RedisClientType } from 'redis';
 
 interface RedisConfig {
   host: string;
   port: number;
   password?: string;
   username?: string;
-  tls?: boolean;
 }
 
 class RedisClient {
-  private static instance: Redis | null = null;
-  private static config: RedisConfig;
+  private static instance: RedisClientType | null = null;
+  private static config: RedisConfig | null = null;
 
   private constructor() {}
 
   public static initialize(config: RedisConfig): void {
     this.config = config;
+    this.createInstance();
   }
 
-  public static getInstance(): Redis | null {
-    // Jika Redis tidak dikonfigurasi, return null
+  private static async createInstance(): Promise<void> {
     if (!this.config) {
       console.warn('Redis configuration not found. Running without Redis cache.');
-      return null;
+      return;
     }
 
-    if (!this.instance) {
-      try {
-        this.instance = new Redis({
+    try {
+      this.instance = createClient({
+        password: this.config.password,
+        socket: {
           host: this.config.host,
-          port: this.config.port,
-          password: this.config.password,
-          username: this.config.username,
-          tls: this.config.tls ? {} : undefined,
-          retryStrategy(times) {
-            const delay = Math.min(times * 50, 2000);
-            return delay;
-          },
-          maxRetriesPerRequest: 3,
-        });
+          port: this.config.port
+        }
+      });
 
-        this.instance.on('error', (error: Error) => {
-          console.error('Redis connection error:', error);
-        });
+      // Event listeners
+      this.instance.on('error', (error: Error) => {
+        console.error('Redis connection error:', error);
+      });
 
-        this.instance.on('connect', () => {
-          console.log('Successfully connected to Redis');
-        });
+      this.instance.on('connect', () => {
+        console.log('Successfully connected to Redis');
+      });
 
-      } catch (error) {
-        console.error('Failed to create Redis instance:', error);
-        return null;
-      }
+      this.instance.on('ready', () => {
+        console.log('Redis client ready');
+      });
+
+      this.instance.on('reconnecting', () => {
+        console.log('Redis client reconnecting');
+      });
+
+      // Connect to Redis
+      await this.instance.connect();
+
+    } catch (error) {
+      console.error('Failed to create Redis instance:', error);
+      this.instance = null;
     }
+  }
 
+  public static getInstance(): RedisClientType | null {
     return this.instance;
   }
 
   public static async disconnect(): Promise<void> {
     if (this.instance) {
-      await this.instance.quit();
+      await this.instance.disconnect();
       this.instance = null;
     }
   }
 }
 
 export class RedisService {
-  private redis: Redis | null;
+  private redis: RedisClientType | null;
   private defaultTTL: number = 3600; // 1 hour in seconds
   private isRedisAvailable: boolean;
 
@@ -95,9 +101,9 @@ export class RedisService {
     try {
       const stringValue = JSON.stringify(value);
       if (ttl) {
-        await this.redis!.setex(key, ttl, stringValue);
+        await this.redis!.setEx(key, ttl, stringValue);
       } else {
-        await this.redis!.setex(key, this.defaultTTL, stringValue);
+        await this.redis!.setEx(key, this.defaultTTL, stringValue);
       }
       return true;
     } catch (error) {
@@ -122,7 +128,7 @@ export class RedisService {
     if (!this.isRedisAvailable) return false;
 
     try {
-      await this.redis!.flushall();
+      await this.redis!.flushAll();
       return true;
     } catch (error) {
       console.error('Error clearing Redis cache:', error);
@@ -131,10 +137,15 @@ export class RedisService {
   }
 }
 
-// Initialize Redis with configuration from environment variables
 export const initializeRedis = (): void => {
-  // Check if Redis is enabled
   const isRedisEnabled = process.env.REDIS_ENABLED === 'true';
+  
+  console.log('Redis Configuration:', {
+    enabled: isRedisEnabled,
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT,
+    username: process.env.REDIS_USERNAME
+  });
 
   if (!isRedisEnabled) {
     console.log('Redis is disabled. Running without cache.');
@@ -145,14 +156,12 @@ export const initializeRedis = (): void => {
     host: process.env.REDIS_HOST || 'localhost',
     port: parseInt(process.env.REDIS_PORT || '6379', 10),
     password: process.env.REDIS_PASSWORD,
-    username: process.env.REDIS_USERNAME,
-    tls: process.env.REDIS_TLS === 'true',
+    username: process.env.REDIS_USERNAME
   };
 
   RedisClient.initialize(config);
 };
 
-// Singleton instance
 let redisServiceInstance: RedisService | null = null;
 
 export const getRedisService = (): RedisService => {
