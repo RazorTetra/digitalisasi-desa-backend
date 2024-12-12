@@ -14,6 +14,7 @@ import { beritaRouter } from './beritaRoutes';
 import { beritaKategoriRouter } from './beritaKategoriRoutes';
 import { heroBannerRouter } from './heroBannerRoutes';
 import { tourismRouter } from './tourismRoutes';
+import { submissionRouter } from './submissionRoutes';
 
 const router = express.Router();
 
@@ -30,5 +31,6 @@ router.use('/berita', beritaRouter);
 router.use('/berita-kategori', beritaKategoriRouter);
 router.use('/hero-banner', heroBannerRouter);
 router.use('/tourism', tourismRouter);
+router.use('/submissions', submissionRouter);
 
 export { router as apiV1Router };

@@ -245,3 +245,21 @@ model Tourism {
 
   @@map("tourism")
 }
+
+enum SubmissionStatus {
+  DIPROSES
+  SELESAI
+}
+
+model Submission {
+  id         String           @id @default(uuid())
+  pengirim   String
+  whatsapp   String
+  kategori   String
+  keterangan String
+  fileUrl    String          // URL dari Cloudinary untuk mengakses file
+  fileName   String          // Nama asli file untuk referensi
+  status     SubmissionStatus @default(DIPROSES)  // Tambahkan field status
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+}
