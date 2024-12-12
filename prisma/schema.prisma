@@ -93,12 +93,22 @@ model TamuWajibLapor {
 }
 
 model FormatSurat {
-  id          String   @id @default(uuid())
+  id          String               @id @default(uuid())
   nama        String
   fileUrl     String
   filename    String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  downloads   FormatSuratDownload[] // Tambahkan relasi
+}
+
+model FormatSuratDownload {
+  id            String      @id @default(uuid())
+  formatSurat   FormatSurat @relation(fields: [formatSuratId], references: [id], onDelete: Cascade)
+  formatSuratId String
+  downloadedAt  DateTime    @default(now())
+
+  @@index([formatSuratId, downloadedAt])
 }
 
 enum Status {

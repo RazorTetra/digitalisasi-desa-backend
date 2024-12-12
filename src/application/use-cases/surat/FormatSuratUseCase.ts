@@ -12,6 +12,16 @@ interface UploadedFile {
   buffer: Buffer;
 }
 
+interface MonthlyDownloadStats {
+  month: string;
+  year: number;
+  downloadCount: number;
+}
+
+interface FormatSuratWithStats extends FormatSurat {
+  totalDownloads: number;
+}
+
 export class FormatSuratUseCase {
   private readonly ALLOWED_MIME_TYPES = [
     'application/msword',
@@ -109,5 +119,25 @@ export class FormatSuratUseCase {
     }
 
     await this.formatSuratRepository.delete(id);
+  }
+  
+  async trackDownload(formatSuratId: string): Promise<void> {
+    const format = await this.formatSuratRepository.findById(formatSuratId);
+    if (!format) {
+      throw new NotFoundError('Format surat not found');
+    }
+    await this.formatSuratRepository.recordDownload(formatSuratId);
+  }
+
+  async getMonthlyDownloads(formatSuratId: string, year?: number): Promise<MonthlyDownloadStats[]> {
+    const format = await this.formatSuratRepository.findById(formatSuratId);
+    if (!format) {
+      throw new NotFoundError('Format surat not found');
+    }
+    return this.formatSuratRepository.getMonthlyDownloads(formatSuratId, year);
+  }
+
+  async getAllFormatsWithStats(): Promise<FormatSuratWithStats[]> {
+    return this.formatSuratRepository.findManyWithDownloadStats();
   }
 }

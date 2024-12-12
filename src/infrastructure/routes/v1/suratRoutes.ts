@@ -6,6 +6,8 @@ import {
   getAllFormatSurat,
   createFormatSurat,
   deleteFormatSurat,
+  trackDownload,
+  getFormatSuratStats,
 } from '../../../interfaces/controllers/suratController';
 import { authMiddleware } from '../../middlewares/authMiddleware';
 import { adminMiddleware } from '../../middlewares/adminMiddleware';
@@ -19,6 +21,7 @@ const upload = multer({
   }
 });
 
+// Existing routes
 router.get('/format', getAllFormatSurat);
 
 router.post(
@@ -34,6 +37,19 @@ router.delete(
   authMiddleware,
   adminMiddleware,
   deleteFormatSurat
+);
+
+// New routes for download tracking
+router.post(
+  '/format/:id/download',
+  trackDownload
+);
+
+router.get(
+  '/format/:id/stats',
+  authMiddleware,
+  adminMiddleware,
+  getFormatSuratStats
 );
 
 export { router as suratRouter };
