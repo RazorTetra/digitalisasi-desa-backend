@@ -11,13 +11,21 @@ Request Body (multipart/form-data):
 
 ```json
 {
-  "pengirim": "John Doe",
-  "whatsapp": "081234567890",
-  "kategori": "Surat Keterangan",
-  "keterangan": "Pengajuan surat keterangan domisili",
+  "pengirim": "John Doe",           // Minimal 2 karakter
+  "whatsapp": "081234567890",       // 10-13 digit angka
+  "kategori": "Surat Keterangan",   // Minimal 1 karakter
+  "keterangan": "Contoh",           // Minimal 10 karakter
   "file": File (doc/docx, max 5MB)
 }
 ```
+
+Field Validations:
+
+- pengirim: String, minimal 2 karakter
+- whatsapp: String, harus berisi 10-13 digit angka
+- kategori: String, minimal 1 karakter
+- keterangan: String, minimal 3 karakter
+- file: File dengan format .doc atau .docx, maksimal 5MB
 
 Response Body (Success - 201 Created):
 
@@ -172,6 +180,12 @@ Response: 204 No Content
     },
     {
       "message": "Nomor WhatsApp harus 10-13 digit"
+    },
+    {
+      "message": "Kategori harus diisi"
+    },
+    {
+      "message": "Keterangan minimal 10 karakter"
     }
   ]
 }
@@ -238,8 +252,17 @@ Response: 204 No Content
 
    - Otomatis dikonversi ke lowercase
    - Tidak boleh kosong
+   - Minimal 1 karakter
 
-4. Status Submission:
+4. Field Validations:
+
+   - pengirim: Minimal 2 karakter
+   - whatsapp: 10-13 digit angka
+   - kategori: Minimal 1 karakter
+   - keterangan: Minimal 3 karakter (PENTING!)
+   - file: Format .doc/.docx, maksimal 5MB
+
+5. Status Submission:
    - DIPROSES: Status default ketika submission baru dibuat
    - SELESAI: Status ketika submission telah selesai diproses
    - Hanya admin yang dapat mengubah status
